@@ -125,3 +125,23 @@
 * If something is ambiguous, prefer the safer, simpler, more explicit option.
 * If a choice would increase hidden behavior, configuration sprawl, or surprise, do not do it.
 * Visible failure is better than invisible wrong behavior.
+
+
+## Comments and Docstrings — MANDATORY
+
+* Comments and docstrings are mandatory.
+* Every public module, class, and function MUST have a docstring.
+* Any non-trivial internal function SHOULD have a docstring unless its purpose is completely obvious from its name and signature.
+* Comments MUST explain intent, constraints, assumptions, invariants, and non-obvious decisions.
+* Do NOT write useless comments that merely restate the code line by line.
+* If logic is complex, unusual, domain-specific, or easy to misunderstand, add an explicit comment.
+* If a workaround, limitation, or deliberate trade-off exists, document it where it appears.
+* Docstrings should be concise, factual, and practical.
+* Prefer documenting:
+  * what the code does
+  * the important inputs and outputs
+  * side effects
+  * important constraints
+  * failure conditions when relevant
+* When behavior is intentionally strict, surprising, or fail-fast, the docstring or comment MUST say so.
+* A missing explanation in non-obvious code is a defect.
