@@ -163,6 +163,10 @@ class Pass02Tests(unittest.TestCase):
             data = json.loads(output_file.read_text(encoding="utf-8"))
             self.assertEqual(data["book_id"], "betrayal")
             self.assertEqual(len(data["chapters"]), 1)
+            self.assertEqual(
+                data["chapters"][0]["chapter_kind_preliminary"], "narrative"
+            )
+            self.assertFalse(data["chapters"][0]["chapter_kind_changed"])
             self.assertEqual(llm_mock.call_count, 1)
 
     def test_fails_if_preliminary_record_is_missing(self) -> None:
@@ -286,6 +290,44 @@ class Pass02Tests(unittest.TestCase):
             ):
                 with self.assertRaises(Exception):
                     pass_02.main()
+
+    def test_marks_chapter_kind_changed_when_final_differs(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            book_file = temp_path / "data" / "betrayal.json"
+            class_file = temp_path / "data" / "pass_01_chapter_classification.json"
+            output_file = temp_path / "data" / "rag_ingest_bundle.json"
+            _write_json(book_file, _book_data(1))
+            _write_json(class_file, _preliminary_data(1))
+
+            llm_item = _valid_pass_02_item("betrayal-001", 1, 1)
+            llm_item["chapter_kind"] = "analysis"
+
+            with (
+                patch.object(pass_02, "BOOK_FILE", book_file),
+                patch.object(pass_02, "CLASSIFICATION_FILE", class_file),
+                patch.object(pass_02, "OUTPUT_FILE", output_file),
+                patch.object(pass_02, "DATA_DIR", temp_path / "data"),
+                patch.object(
+                    pass_02,
+                    "SCHEMA_FILE",
+                    ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json",
+                ),
+                patch.object(
+                    pass_02,
+                    "call_openai_structured_cached",
+                    return_value=llm_item,
+                ),
+                patch.object(sys, "argv", ["pass_02_extract_and_bundle.py"]),
+            ):
+                pass_02.main()
+
+            data = json.loads(output_file.read_text(encoding="utf-8"))
+            out_item = data["chapters"][0]
+            self.assertEqual(out_item["chapter_kind_preliminary"], "narrative")
+            self.assertEqual(out_item["chapter_kind"], "analysis")
+            self.assertTrue(out_item["chapter_kind_changed"])
+            self.assertTrue(out_item["chapter_kind_change_rationale"])
 
 
 if __name__ == "__main__":

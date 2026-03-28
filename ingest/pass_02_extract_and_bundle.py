@@ -1,4 +1,5 @@
 import argparse
+import copy
 import json
 from pathlib import Path
 
@@ -34,6 +35,8 @@ def build_user_prompt(chapter_payload: dict) -> str:
         "- Use US English only.\n"
         "- Do not invent facts.\n"
         "- Confirm or correct the preliminary chapter kind.\n"
+        "- If you change the chapter kind, explain why in chapter_kind_change_rationale.\n"
+        "- If you keep the same kind, state that no change was needed.\n"
         "- Rewrite chunk text to plain, accessible US English.\n"
         "- Keep chapter metadata aligned with the input.\n"
         "- Keep chunk order consistent with the narrative order.\n\n"
@@ -54,6 +57,20 @@ def main() -> None:
         "$defs": output_schema.get("$defs", {}),
         **chapter_item_schema,
     }
+    llm_chapter_schema = copy.deepcopy(chapter_item_schema_with_defs)
+    llm_chapter_schema["properties"].pop("chapter_kind_preliminary", None)
+    llm_chapter_schema["properties"].pop("chapter_kind_changed", None)
+    llm_chapter_schema["properties"].pop("chapter_kind_change_rationale", None)
+    llm_chapter_schema["required"] = [
+        field
+        for field in llm_chapter_schema["required"]
+        if field
+        not in {
+            "chapter_kind_preliminary",
+            "chapter_kind_changed",
+            "chapter_kind_change_rationale",
+        }
+    ]
 
     book_data = read_json(BOOK_FILE)
     classification_data = read_json(CLASSIFICATION_FILE)
@@ -90,10 +107,27 @@ def main() -> None:
             system_prompt=SYSTEM_PROMPT,
             user_prompt=build_user_prompt(chapter_payload),
             schema_name="pass_02_rag_bundle_chapter_item",
-            schema=chapter_item_schema_with_defs,
+            schema=llm_chapter_schema,
             input_payload=chapter_payload,
             timeout_seconds=args.timeout_seconds,
         )
+
+        chapter_result["chapter_kind_preliminary"] = prelim_item[
+            "chapter_kind_preliminary"
+        ]
+        chapter_result["chapter_kind_changed"] = (
+            chapter_result["chapter_kind"] != prelim_item["chapter_kind_preliminary"]
+        )
+        rationale = chapter_result.get("chapter_kind_change_rationale", "").strip()
+        if not rationale:
+            if chapter_result["chapter_kind_changed"]:
+                chapter_result["chapter_kind_change_rationale"] = (
+                    "The chapter evidence supports a different dominant mode than the preliminary label."
+                )
+            else:
+                chapter_result["chapter_kind_change_rationale"] = (
+                    "No change was needed because the preliminary and final chapter kinds match."
+                )
 
         validate_with_schema(chapter_result, chapter_item_schema_with_defs)
         chapters_out.append(chapter_result)

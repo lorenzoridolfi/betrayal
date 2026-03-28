@@ -53,6 +53,25 @@
               "other"
             ]
           },
+          "chapter_kind_preliminary": {
+            "type": "string",
+            "enum": [
+              "narrative",
+              "background",
+              "analysis",
+              "reflection",
+              "conclusion",
+              "appendix",
+              "mixed",
+              "other"
+            ]
+          },
+          "chapter_kind_changed": {
+            "type": "boolean"
+          },
+          "chapter_kind_change_rationale": {
+            "type": "string"
+          },
           "summary_short": {
             "type": "string"
           },
@@ -130,6 +149,9 @@
           "chapter_number",
           "chapter_title",
           "chapter_kind",
+          "chapter_kind_preliminary",
+          "chapter_kind_changed",
+          "chapter_kind_change_rationale",
           "summary_short",
           "summary_detailed",
           "summary_confidence",

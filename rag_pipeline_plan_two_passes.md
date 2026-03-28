@@ -85,12 +85,14 @@ Classify each chapter and produce a lightweight structured result.
 
 For each chapter, consume the matching preliminary record from Pass 1, then produce final extraction and chunk data in one bundled artifact.
 
+Pass 2 explicitly improves classification quality by confirming or correcting the preliminary label.
+
 ### Required content per chapter
 
 - Chapter metadata:
   - `chapter_id`, `chapter_order`, `source_file`, `chapter_type`, `chapter_number`, `chapter_title`
 - Final chapter extraction:
-  - `chapter_kind`, `summary_short`, `summary_detailed`, `summary_confidence`
+  - `chapter_kind`, `chapter_kind_preliminary`, `chapter_kind_changed`, `chapter_kind_change_rationale`, `summary_short`, `summary_detailed`, `summary_confidence`
   - `themes`, `key_events`, `entities`, `time_markers`, `important_quotes`, `open_loops`, `chapter_keywords`, `ambiguities_or_gaps`
 - Chunk layer:
   - `chunks[]` with `chunk_id`, `chunk_order`, `source_paragraph_start`, `source_paragraph_end`, `chunk_text_source`, `chunk_text_us_plain`, `chunk_kind`, `entities_mentioned`, `aliases`, `time_markers`, `rewrite_quality`, `fidelity_notes`
