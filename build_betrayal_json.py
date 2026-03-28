@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+from ingest.logging_utils import configure_logging, get_logger
 from project_paths import DATA_DIR, ROOT_DIR
 
 
@@ -15,6 +16,7 @@ P_TAG = f"{XHTML_NS}p"
 SUP_TAG = f"{XHTML_NS}sup"
 SPAN_TAG = f"{XHTML_NS}span"
 SEPARATOR_PATTERN = re.compile(r"^\*\s*\*\s*\*$")
+logger = get_logger(__name__)
 
 
 def clean_text(text: str) -> str:
@@ -127,15 +129,19 @@ def load_paths(contents_file: Path) -> list[Path]:
 
 def main() -> None:
     """Generate `data/betrayal.json` from source chapter files."""
+    effective_log_level = configure_logging()
+    logger.debug("Starting build_betrayal_json with LOG_LEVEL=%s", effective_log_level)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info("Reading chapter list from %s", CONTENTS_FILE)
     chapter_paths = load_paths(CONTENTS_FILE)
+    logger.info("Found %d chapter source files", len(chapter_paths))
     examples = [parse_file(path) for path in chapter_paths]
     payload = {"examples": examples}
 
     with OUTPUT_FILE.open("w", encoding="utf-8") as file:
         json.dump(payload, file, ensure_ascii=False, indent=2)
 
-    print(f"Generated {OUTPUT_FILE.name} with {len(examples)} entries.")
+    logger.info("Generated %s with %d entries", OUTPUT_FILE.name, len(examples))
 
 
 if __name__ == "__main__":

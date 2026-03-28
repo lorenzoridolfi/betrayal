@@ -3,6 +3,7 @@
 import json
 
 import tiktoken
+from ingest.logging_utils import configure_logging, get_logger
 from project_paths import DATA_DIR
 
 
@@ -16,6 +17,7 @@ EXPECTED_KEYS = {
     "chapter_title",
     "paragraphs",
 }
+logger = get_logger(__name__)
 
 
 def count_tokens(text: str, encoder: tiktoken.Encoding) -> int:
@@ -164,7 +166,12 @@ def validate_and_count(data: dict) -> dict:
 
 def main() -> None:
     """Run validation and write report to `data/betrayal_validation_report.json`."""
+    effective_log_level = configure_logging()
+    logger.debug(
+        "Starting validate_betrayal_json with LOG_LEVEL=%s", effective_log_level
+    )
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info("Reading input JSON from %s", INPUT_FILE)
     with INPUT_FILE.open("r", encoding="utf-8") as file:
         data = json.load(file)
 
@@ -174,14 +181,18 @@ def main() -> None:
         json.dump(report, file, ensure_ascii=False, indent=2)
 
     status = "valid" if report["is_valid"] else "invalid"
-    print(
-        f"Validation {status}. Chapters: {report['chapter_count']}. "
-        f"Total tokens (titles + paragraphs): {report['total_token_count']}."
+    logger.info(
+        "Validation %s. Chapters=%d total_tokens=%d",
+        status,
+        report["chapter_count"],
+        report["total_token_count"],
     )
     if report["errors"]:
-        print(f"Errors: {len(report['errors'])}. See {REPORT_FILE.name}.")
+        logger.error(
+            "Validation errors=%d. See %s", len(report["errors"]), REPORT_FILE.name
+        )
     else:
-        print(f"Detailed chapter report written to {REPORT_FILE.name}.")
+        logger.info("Detailed chapter report written to %s", REPORT_FILE.name)
 
 
 if __name__ == "__main__":

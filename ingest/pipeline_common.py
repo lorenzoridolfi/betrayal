@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import logging
 import sys
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,9 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from openai_utils import get_openai_client, get_openai_retryable_exceptions
+
+
+logger = logging.getLogger(__name__)
 
 
 class SchemaValidationError(Exception):
@@ -115,7 +119,9 @@ def load_cached_response(cache_key: str) -> Any | None:
     """Load a cached model response if present."""
     path = _cache_path(cache_key)
     if not path.exists():
+        logger.debug("Structured output cache miss key=%s", cache_key)
         return None
+    logger.debug("Structured output cache hit key=%s", cache_key)
     return read_json(path)
 
 
@@ -123,6 +129,7 @@ def save_cached_response(cache_key: str, value: Any) -> None:
     """Persist a model response in the structured-output cache."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     write_json(_cache_path(cache_key), value)
+    logger.debug("Structured output cache saved key=%s", cache_key)
 
 
 def _get_openai_client() -> Any:
@@ -169,12 +176,18 @@ def _call_openai_once(
 
     content = response.choices[0].message.content
     if not content:
+        logger.error("Model returned empty content for schema=%s", schema_name)
         raise SchemaValidationError("Model returned empty content.")
 
     parsed = json.loads(content)
     try:
         validate_with_schema(parsed, schema)
     except ValidationError as error:
+        logger.error(
+            "Model output failed schema validation schema=%s error=%s",
+            schema_name,
+            str(error),
+        )
         raise SchemaValidationError(str(error)) from error
     return parsed
 
@@ -211,6 +224,11 @@ def call_openai_structured_cached(
 
     last_result: Any = None
     for attempt in retryer:
+        logger.debug(
+            "Calling OpenAI structured output attempt=%d schema=%s",
+            attempt.retry_state.attempt_number,
+            schema_name,
+        )
         with attempt:
             last_result = _call_openai_once(
                 model=model,

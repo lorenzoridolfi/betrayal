@@ -1,5 +1,6 @@
 """Validate that chapter item schemas stay compatible with book-level schemas."""
 
+from logging_utils import configure_logging, get_logger
 from pipeline_common import read_json, write_json
 from pipeline_params import (
     DATA_DIR,
@@ -9,6 +10,9 @@ from pipeline_params import (
     PASS_02_SCHEMA_FILE,
     SCHEMA_CONTRACT_VALIDATION_FILE,
 )
+
+
+logger = get_logger(__name__)
 
 
 def _as_type_set(schema: dict) -> set[str]:
@@ -119,13 +123,18 @@ def run_validation() -> dict:
 
 def main() -> None:
     """Write validation report and fail fast if incompatibilities exist."""
+    effective_log_level = configure_logging()
+    logger.debug(
+        "Starting schema contract validation with LOG_LEVEL=%s", effective_log_level
+    )
+
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     report = run_validation()
     write_json(SCHEMA_CONTRACT_VALIDATION_FILE, report)
     if report["is_valid"]:
-        print("Schema contract validation passed.")
+        logger.info("Schema contract validation passed")
         return
-    print("Schema contract validation failed.")
+    logger.error("Schema contract validation failed")
     raise SystemExit(1)
 
 

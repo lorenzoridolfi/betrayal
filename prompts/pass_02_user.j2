@@ -3,12 +3,22 @@ Analyze this chapter and return the requested JSON object.
 Requirements:
 - Use US English only.
 - Do not invent facts.
+- Include every required schema field in the output JSON.
+- For nullable fields, use null when evidence is missing.
+- For arrays without evidence, use [].
 - Confirm or correct the preliminary chapter kind.
 - If you change the chapter kind, explain why in chapter_kind_change_rationale.
 - If you keep the same kind, state that no change was needed.
 - Rewrite chunk text to plain, accessible US English.
 - Keep chapter metadata aligned with the input.
 - Keep chunk order consistent with the narrative order.
+- Copy schema_version, pipeline_version, and extraction_model exactly from extraction_context.
+- Keep references consistent:
+  - entity_id values must match entities[].entity_id
+  - key_events[].involved_entities should use canonical names present in entities
+  - relationships[].source_entity_id and target_entity_id must reference existing entities[].entity_id
+  - relationships[].evidence_chunk_ids must reference existing chunks[].chunk_id
+  - chunks[].previous_chunk_id and next_chunk_id must form a valid sequence
 
 Chapter input:
 {{ chapter_payload_json }}

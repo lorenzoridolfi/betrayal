@@ -4,6 +4,10 @@ import os
 import io
 from cryptography.fernet import Fernet
 from dotenv import dotenv_values
+from ingest.logging_utils import configure_logging, get_logger
+
+
+logger = get_logger(__name__)
 
 
 class DotenvVault:
@@ -19,7 +23,7 @@ class DotenvVault:
         os.makedirs(os.path.dirname(self.key_path), exist_ok=True)
         with open(self.key_path, "wb") as key_file:
             key_file.write(key)
-        print(f"✅ Chave gerada com sucesso em: {self.key_path}")
+        logger.info("Key generated at path=%s", self.key_path)
 
     def encrypt_dotenv(
         self, source_path: str = ".env", dest_path: str = ".env.enc"
@@ -35,7 +39,7 @@ class DotenvVault:
         encrypted_data = fernet.encrypt(data)
         with open(dest_path, "wb") as f:
             f.write(encrypted_data)
-        print(f"🔒 Arquivo {source_path} criptografado para {dest_path}")
+        logger.info("Encrypted dotenv source=%s dest=%s", source_path, dest_path)
 
     def load_to_environ(self, enc_env_path: str = ".env.enc") -> None:
         """Decrypt dotenv payload and inject key-value pairs into environment."""
@@ -57,11 +61,14 @@ class DotenvVault:
             if value is not None:
                 os.environ[key] = value
 
-        print(f"🚀 {len(config)} variáveis carregadas no os.environ.")
+        logger.info("Loaded %d dotenv variables into environment", len(config))
 
 
 # --- EXEMPLO DE USO ---
 if __name__ == "__main__":
+    effective_log_level = configure_logging()
+    logger.debug("Starting dotenv_crypt example with LOG_LEVEL=%s", effective_log_level)
+
     # 1. Defina um caminho fora da pasta do seu projeto (Ex: Home do usuário)
     MINHA_CHAVE_MESTRA = os.path.expanduser("~/.meus_segredos/ai_project.key")
 
@@ -77,4 +84,5 @@ if __name__ == "__main__":
     # Teste:
     import os
 
-    print(f"Minha chave de AI é: {os.getenv('OPENAI_API_KEY')}")
+    has_api_key = bool(os.getenv("OPENAI_API_KEY"))
+    logger.info("OPENAI_API_KEY loaded into environment=%s", has_api_key)

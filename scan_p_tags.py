@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+from ingest.logging_utils import configure_logging, get_logger
 from project_paths import DATA_DIR, ROOT_DIR
 
 
@@ -11,6 +12,7 @@ CONTENTS_FILE = ROOT_DIR / "contents.txt"
 REPORT_FILE = DATA_DIR / "p_inner_tags_report.json"
 XHTML_NS = "{http://www.w3.org/1999/xhtml}"
 P_TAG = f"{XHTML_NS}p"
+logger = get_logger(__name__)
 
 
 def clean_text(text: str) -> str:
@@ -101,9 +103,13 @@ def scan_file(path: Path) -> dict:
 
 def main() -> None:
     """Generate `data/p_inner_tags_report.json` for all chapter files."""
+    effective_log_level = configure_logging()
+    logger.debug("Starting scan_p_tags with LOG_LEVEL=%s", effective_log_level)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info("Loading chapter paths from %s", CONTENTS_FILE)
     chapter_paths = load_paths()
     per_file = [scan_file(path) for path in chapter_paths]
+    logger.info("Scanned %d files for paragraph inner tags", len(per_file))
 
     all_tags = set()
     totals = {
@@ -148,7 +154,7 @@ def main() -> None:
     with REPORT_FILE.open("w", encoding="utf-8") as file:
         json.dump(report, file, ensure_ascii=False, indent=2)
 
-    print(f"Generated {REPORT_FILE.name} for {len(per_file)} files.")
+    logger.info("Generated %s for %d files", REPORT_FILE.name, len(per_file))
 
 
 if __name__ == "__main__":

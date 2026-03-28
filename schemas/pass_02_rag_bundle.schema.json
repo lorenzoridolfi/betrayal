@@ -51,7 +51,8 @@
               "appendix",
               "mixed",
               "other"
-            ]
+            ],
+            "description": "Final dominant chapter mode. Confirm or correct the preliminary label based only on chapter evidence."
           },
           "chapter_kind_preliminary": {
             "type": "string",
@@ -64,13 +65,16 @@
               "appendix",
               "mixed",
               "other"
-            ]
+            ],
+            "description": "Preliminary chapter kind from pass 01, copied verbatim for traceability."
           },
           "chapter_kind_changed": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "True when final chapter_kind differs from chapter_kind_preliminary."
           },
           "chapter_kind_change_rationale": {
-            "type": "string"
+            "type": "string",
+            "description": "Short evidence-based explanation describing why the final kind changed or remained unchanged."
           },
           "summary_short": {
             "type": "string"
@@ -96,19 +100,22 @@
             "type": "array",
             "items": {
               "$ref": "#/$defs/key_event"
-            }
+            },
+            "description": "Chronological event list for this chapter. Use [] if no discrete event can be supported by evidence."
           },
           "entities": {
             "type": "array",
             "items": {
               "$ref": "#/$defs/entity"
-            }
+            },
+            "description": "Entity list extracted from chapter evidence. Every entity must include a stable entity_id used by events and relationships."
           },
           "time_markers": {
             "type": "array",
             "items": {
               "$ref": "#/$defs/time_marker"
-            }
+            },
+            "description": "Normalized temporal signals with precision and uncertainty bounds."
           },
           "important_quotes": {
             "type": "array",
@@ -138,6 +145,26 @@
             "type": "array",
             "items": {
               "$ref": "#/$defs/chunk"
+            },
+            "description": "Ordered retrieval chunks rewritten into plain US English while preserving source meaning."
+          },
+          "schema_version": {
+            "type": "string",
+            "description": "Pipeline schema version string provided in extraction_context. Copy exactly and do not alter."
+          },
+          "pipeline_version": {
+            "type": "string",
+            "description": "Pipeline runtime version string provided in extraction_context. Copy exactly and do not alter."
+          },
+          "extraction_model": {
+            "type": "string",
+            "description": "LLM model identifier provided in extraction_context. Copy exactly and do not alter."
+          },
+          "relationships": {
+            "type": "array",
+            "description": "Typed graph relationships grounded in this chapter. Use [] when no relationship is supported by evidence.",
+            "items": {
+              "$ref": "#/$defs/relationship"
             }
           }
         },
@@ -149,9 +176,6 @@
           "chapter_number",
           "chapter_title",
           "chapter_kind",
-          "chapter_kind_preliminary",
-          "chapter_kind_changed",
-          "chapter_kind_change_rationale",
           "summary_short",
           "summary_detailed",
           "summary_confidence",
@@ -163,7 +187,14 @@
           "open_loops",
           "chapter_keywords",
           "ambiguities_or_gaps",
-          "chunks"
+          "chunks",
+          "schema_version",
+          "pipeline_version",
+          "extraction_model",
+          "relationships",
+          "chapter_kind_preliminary",
+          "chapter_kind_changed",
+          "chapter_kind_change_rationale"
         ]
       }
     }
@@ -178,10 +209,12 @@
       "additionalProperties": false,
       "properties": {
         "sequence": {
-          "type": "integer"
+          "type": "integer",
+          "description": "1-based narrative order of the event inside the chapter."
         },
         "event_summary": {
-          "type": "string"
+          "type": "string",
+          "description": "One factual sentence describing what happened. Do not invent details."
         },
         "importance": {
           "type": "string",
@@ -199,9 +232,14 @@
         },
         "consequences": {
           "type": "string"
+        },
+        "event_id": {
+          "type": "string",
+          "description": "Stable event identifier unique within the chapter, e.g., \"betrayal-003-event-001\"."
         }
       },
       "required": [
+        "event_id",
         "sequence",
         "event_summary",
         "importance",
@@ -214,7 +252,8 @@
       "additionalProperties": false,
       "properties": {
         "canonical_name": {
-          "type": "string"
+          "type": "string",
+          "description": "Most complete explicit name supported by chapter text."
         },
         "entity_type": {
           "type": "string",
@@ -244,9 +283,14 @@
           "items": {
             "type": "string"
           }
+        },
+        "entity_id": {
+          "type": "string",
+          "description": "Stable entity identifier unique within the chapter, e.g., \"betrayal-003-entity-002\"."
         }
       },
       "required": [
+        "entity_id",
         "canonical_name",
         "entity_type",
         "role_in_chapter",
@@ -259,13 +303,15 @@
       "additionalProperties": false,
       "properties": {
         "label": {
-          "type": "string"
+          "type": "string",
+          "description": "Raw time expression from chapter text."
         },
         "normalized": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Normalized date/time string when possible (ISO-like); otherwise null."
         },
         "certainty": {
           "type": "string",
@@ -276,13 +322,54 @@
         },
         "related_event": {
           "type": "string"
+        },
+        "date_precision": {
+          "type": "string",
+          "enum": [
+            "exact",
+            "day",
+            "month",
+            "year",
+            "decade",
+            "approximate",
+            "relative",
+            "unknown"
+          ],
+          "description": "Temporal precision of the marker. Use \"unknown\" if precision cannot be inferred."
+        },
+        "date_earliest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Earliest plausible normalized bound for this time marker, or null if unavailable."
+        },
+        "date_latest": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Latest plausible normalized bound for this time marker, or null if unavailable."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "description": "Confidence in normalization and precision assignment."
         }
       },
       "required": [
         "label",
         "normalized",
         "certainty",
-        "related_event"
+        "related_event",
+        "date_precision",
+        "date_earliest",
+        "date_latest",
+        "confidence"
       ]
     },
     "quote_item": {
@@ -328,7 +415,8 @@
           "type": "string"
         },
         "chunk_text_us_plain": {
-          "type": "string"
+          "type": "string",
+          "description": "Plain US English rewrite preserving source meaning and factual fidelity."
         },
         "chunk_kind": {
           "type": "string",
@@ -367,6 +455,36 @@
         },
         "fidelity_notes": {
           "type": "string"
+        },
+        "token_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Estimated token count for chunk_text_us_plain."
+        },
+        "previous_chunk_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Immediate previous chunk_id in chapter order, or null for the first chunk."
+        },
+        "next_chunk_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Immediate next chunk_id in chapter order, or null for the last chunk."
+        },
+        "keywords": {
+          "type": "array",
+          "description": "Sparse-search keywords grounded in this chunk text. Use [] when no specific keywords are available.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bm25_boost_text": {
+          "type": "string",
+          "description": "Keyword-optimized text for sparse retrieval, combining chapter/chunk context terms without inventing facts."
         }
       },
       "required": [
@@ -381,7 +499,105 @@
         "aliases",
         "time_markers",
         "rewrite_quality",
-        "fidelity_notes"
+        "fidelity_notes",
+        "token_count",
+        "previous_chunk_id",
+        "next_chunk_id",
+        "keywords",
+        "bm25_boost_text"
+      ]
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Directed edge between two chapter entities supported by explicit or strongly inferred evidence.",
+      "properties": {
+        "relationship_id": {
+          "type": "string",
+          "description": "Stable relationship identifier unique within the chapter, e.g., \"betrayal-003-rel-001\"."
+        },
+        "source_entity_id": {
+          "type": "string",
+          "description": "entity_id of the source node."
+        },
+        "target_entity_id": {
+          "type": "string",
+          "description": "entity_id of the target node."
+        },
+        "relationship_type": {
+          "type": "string",
+          "enum": [
+            "MARRIED_TO",
+            "PARENT_OF",
+            "MENTORED_BY",
+            "RIVAL_OF",
+            "MEMBER_OF",
+            "LEADER_OF",
+            "FOUNDED",
+            "EMPLOYED_BY",
+            "PRECEDED_BY",
+            "FOLLOWED_BY",
+            "DURING",
+            "CONCURRENT_WITH",
+            "CAUSED",
+            "LED_TO",
+            "INFLUENCED",
+            "MOTIVATED_BY",
+            "SYMBOLIZES",
+            "EXEMPLIFIES",
+            "CONTRASTS_WITH",
+            "LOCATED_IN",
+            "BORN_IN",
+            "TRAVELED_TO",
+            "ASSOCIATED_WITH"
+          ],
+          "description": "Typed edge label chosen from controlled taxonomy. Never use free-form relation labels."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short evidence-grounded rationale describing the relationship in this chapter context."
+        },
+        "evidence_chunk_ids": {
+          "type": "array",
+          "description": "chunk_id values that support this edge. Must reference chunk IDs present in this chapter output.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "description": "Confidence that this relationship is supported by chapter evidence."
+        },
+        "valid_from": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Normalized temporal start bound for the relationship, or null when unknown."
+        },
+        "valid_to": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Normalized temporal end bound for the relationship, or null when unknown or ongoing."
+        }
+      },
+      "required": [
+        "relationship_id",
+        "source_entity_id",
+        "target_entity_id",
+        "relationship_type",
+        "description",
+        "evidence_chunk_ids",
+        "confidence",
+        "valid_from",
+        "valid_to"
       ]
     }
   }

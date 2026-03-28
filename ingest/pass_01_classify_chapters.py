@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from logging_utils import configure_logging, get_logger
 from pipeline_params import (
     DATA_DIR,
     PASS_01_ITEM_SCHEMA_FILE,
@@ -28,6 +29,9 @@ from pipeline_common import (
 )
 
 
+logger = get_logger(__name__)
+
+
 def build_user_prompt(chapter_payload: dict) -> str:
     """Render the pass-01 user prompt from the chapter payload."""
     return render_prompt_template(
@@ -38,6 +42,9 @@ def build_user_prompt(chapter_payload: dict) -> str:
 
 def main() -> None:
     """Run pass 01 for the selected profile and write validated output."""
+    effective_log_level = configure_logging()
+    logger.debug("Starting pass_01 with LOG_LEVEL=%s", effective_log_level)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=MODEL_DEFAULT)
     parser.add_argument("--timeout-seconds", type=int, default=TIMEOUT_SECONDS_DEFAULT)
@@ -53,6 +60,9 @@ def main() -> None:
     )
     chapter_limit = profile["chapter_limit"]
     system_prompt = read_text_file(PASS_01_SYSTEM_PROMPT_FILE)
+    logger.info(
+        "pass_01 profile=%s input=%s output=%s", args.profile, input_file, output_file
+    )
 
     schema = load_schema(PASS_01_SCHEMA_FILE)
     chapter_item_schema = load_schema(PASS_01_ITEM_SCHEMA_FILE)
@@ -66,6 +76,9 @@ def main() -> None:
     chapters_out = []
     for index, chapter in enumerate(examples, start=1):
         chapter_id = chapter_id_from_order(index)
+        logger.debug(
+            "pass_01 classifying chapter_id=%s chapter_order=%d", chapter_id, index
+        )
         paragraph_texts = [p.get("text", "") for p in chapter.get("paragraphs", [])]
         chapter_text = "\n\n".join(text for text in paragraph_texts if text)
 
@@ -98,7 +111,9 @@ def main() -> None:
     }
     validate_with_schema(output_data, schema)
     write_json(output_file, output_data)
-    print(f"Wrote {output_file.name} with {len(chapters_out)} chapters.")
+    logger.info(
+        "pass_01 wrote %s with %d chapters", output_file.name, len(chapters_out)
+    )
 
 
 if __name__ == "__main__":

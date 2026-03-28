@@ -31,7 +31,7 @@ def task_validate_schema_contracts() -> dict[str, object]:
 
 
 def task_pipeline() -> dict[str, object]:
-    """Run the two-pass ingest pipeline for the selected profile."""
+    """Run the three-step ingest pipeline for the selected profile."""
     return {
         "task_dep": ["validate_schema_contracts"],
         "file_dep": [str(path) for path in PIPELINE_FILE_DEPS],

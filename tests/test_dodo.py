@@ -11,6 +11,7 @@ if str(INGEST_DIR) not in sys.path:
 
 import dodo
 from pipeline_params import (
+    PASS_01_5_SCRIPT,
     PROFILE_CHOICES,
     PROFILE_DEFAULT,
     RUN_PIPELINE_SCRIPT,
@@ -33,6 +34,7 @@ class DodoTests(unittest.TestCase):
         task = dodo.task_pipeline()
 
         self.assertIn(str(RUN_PIPELINE_SCRIPT), task["file_dep"])
+        self.assertIn(str(PASS_01_5_SCRIPT), task["file_dep"])
         self.assertIn(
             f"uv run python {RUN_PIPELINE_SCRIPT} %(profile)s", task["actions"]
         )

@@ -90,6 +90,10 @@ def _valid_pass_02_item(
     chapter_id: str, chapter_order: int, chapter_number: int
 ) -> dict:
     """Return a schema-valid pass_02 chapter item."""
+    entity_id = f"{chapter_id}-entity-001"
+    event_id = f"{chapter_id}-event-001"
+    relationship_id = f"{chapter_id}-rel-001"
+    chunk_id = f"{chapter_id}-chunk-001"
     return {
         "chapter_id": chapter_id,
         "chapter_order": chapter_order,
@@ -98,12 +102,16 @@ def _valid_pass_02_item(
         "chapter_number": chapter_number,
         "chapter_title": f"Title {chapter_number}",
         "chapter_kind": "narrative",
+        "schema_version": "2.2.0",
+        "pipeline_version": "pass_02_v1_2",
+        "extraction_model": "gpt-5-mini",
         "summary_short": "A short factual summary.",
         "summary_detailed": "A longer factual summary with key developments.",
         "summary_confidence": "high",
         "themes": ["media"],
         "key_events": [
             {
+                "event_id": event_id,
                 "sequence": 1,
                 "event_summary": "A public event happens.",
                 "importance": "high",
@@ -113,6 +121,7 @@ def _valid_pass_02_item(
         ],
         "entities": [
             {
+                "entity_id": entity_id,
                 "canonical_name": "Harry",
                 "entity_type": "person",
                 "role_in_chapter": "Main subject",
@@ -126,6 +135,10 @@ def _valid_pass_02_item(
                 "normalized": "2022-09",
                 "certainty": "explicit",
                 "related_event": "A public event happens.",
+                "date_precision": "month",
+                "date_earliest": "2022-09-01",
+                "date_latest": "2022-09-30",
+                "confidence": "high",
             }
         ],
         "important_quotes": [
@@ -140,7 +153,7 @@ def _valid_pass_02_item(
         "ambiguities_or_gaps": [],
         "chunks": [
             {
-                "chunk_id": f"{chapter_id}-chunk-001",
+                "chunk_id": chunk_id,
                 "chunk_order": 1,
                 "source_paragraph_start": 1,
                 "source_paragraph_end": 1,
@@ -152,6 +165,24 @@ def _valid_pass_02_item(
                 "time_markers": ["September 2022"],
                 "rewrite_quality": "pass",
                 "fidelity_notes": "Meaning preserved.",
+                "token_count": 8,
+                "previous_chunk_id": None,
+                "next_chunk_id": None,
+                "keywords": ["royal", "media"],
+                "bm25_boost_text": "Title royal media chapter coverage",
+            }
+        ],
+        "relationships": [
+            {
+                "relationship_id": relationship_id,
+                "source_entity_id": entity_id,
+                "target_entity_id": entity_id,
+                "relationship_type": "ASSOCIATED_WITH",
+                "description": "The chapter repeatedly links Harry to the central public event.",
+                "evidence_chunk_ids": [chunk_id],
+                "confidence": "high",
+                "valid_from": "2022-09",
+                "valid_to": "2022-09",
             }
         ],
     }
@@ -215,6 +246,9 @@ class Pass02Tests(unittest.TestCase):
                 data["chapters"][0]["chapter_kind_preliminary"], "narrative"
             )
             self.assertFalse(data["chapters"][0]["chapter_kind_changed"])
+            self.assertEqual(data["chapters"][0]["schema_version"], "2.2.0")
+            self.assertEqual(data["chapters"][0]["pipeline_version"], "pass_02_v1_2")
+            self.assertEqual(data["chapters"][0]["extraction_model"], "gpt-5-mini")
             self.assertEqual(llm_mock.call_count, 1)
 
     def test_fails_if_preliminary_record_is_missing(self) -> None:
@@ -264,9 +298,14 @@ class Pass02Tests(unittest.TestCase):
 
             call_kwargs = llm_mock.call_args.kwargs
             self.assertIn("preliminary", call_kwargs["input_payload"])
+            self.assertIn("extraction_context", call_kwargs["input_payload"])
             self.assertEqual(
                 call_kwargs["input_payload"]["preliminary"]["chapter_id"],
                 preliminary["chapters"][0]["chapter_id"],
+            )
+            self.assertEqual(
+                call_kwargs["input_payload"]["extraction_context"]["schema_version"],
+                "2.2.0",
             )
 
     def test_calls_llm_once_per_chapter(self) -> None:

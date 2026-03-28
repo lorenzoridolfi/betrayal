@@ -45,10 +45,6 @@ def get_openai_client() -> "OpenAI":
     api_key = _load_api_key_to_environ()
     if api_key is None:
         logger.error("[FATAL] OPENAI_API_KEY is not defined in environment! Aborting.")
-        print(
-            "[FATAL] OPENAI_API_KEY is not defined in environment! Aborting.",
-            file=sys.stderr,
-        )
         sys.exit(1)
     return OpenAI(api_key=api_key)
 
@@ -65,10 +61,6 @@ def get_async_openai_client() -> "AsyncOpenAI":
     api_key = _load_api_key_to_environ()
     if api_key is None:
         logger.error("[FATAL] OPENAI_API_KEY is not defined in environment! Aborting.")
-        print(
-            "[FATAL] OPENAI_API_KEY is not defined in environment! Aborting.",
-            file=sys.stderr,
-        )
         sys.exit(1)
     return AsyncOpenAI(api_key=api_key)
 
