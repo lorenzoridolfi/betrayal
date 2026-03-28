@@ -234,6 +234,44 @@ class Pass01Tests(unittest.TestCase):
             data = json.loads(output_file.read_text(encoding="utf-8"))
             self.assertEqual(len(data["chapters"]), 2)
 
+    def test_loads_system_prompt_from_prompts_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            input_file = temp_path / "data" / "betrayal.json"
+            output_file = temp_path / "data" / "pass_01_chapter_classification.json"
+            prompt_file = temp_path / "prompts" / "pass_01.txt"
+            _write_json(input_file, _build_input(1))
+            prompt_file.parent.mkdir(parents=True, exist_ok=True)
+            prompt_file.write_text("Prompt from file.", encoding="utf-8")
+
+            with (
+                patch.object(pass_01, "DATA_DIR", temp_path / "data"),
+                patch.object(pass_01, "PASS_01_SYSTEM_PROMPT_FILE", prompt_file),
+                patch.object(
+                    pass_01,
+                    "call_openai_structured_cached",
+                    return_value=_valid_pass_01_item("betrayal-001", 1, 1),
+                ) as llm_mock,
+            ):
+                self._run_pass_01(input_file=input_file, output_file=output_file)
+
+            self.assertEqual(
+                llm_mock.call_args.kwargs["system_prompt"], "Prompt from file."
+            )
+
+    def test_build_user_prompt_uses_jinja_template(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            template_file = Path(temp_dir) / "user_prompt.j2"
+            template_file.write_text(
+                "Payload: {{ chapter_payload_json }}", encoding="utf-8"
+            )
+            with patch.object(
+                pass_01, "PASS_01_USER_PROMPT_TEMPLATE_FILE", template_file
+            ):
+                prompt = pass_01.build_user_prompt({"chapter_id": "betrayal-001"})
+
+            self.assertIn('"chapter_id": "betrayal-001"', prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -354,6 +354,51 @@ class Pass02Tests(unittest.TestCase):
             data = json.loads(output_file.read_text(encoding="utf-8"))
             self.assertEqual(len(data["chapters"]), 2)
 
+    def test_loads_system_prompt_from_prompts_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            book_file = temp_path / "data" / "betrayal.json"
+            class_file = temp_path / "data" / "pass_01_chapter_classification.json"
+            output_file = temp_path / "data" / "rag_ingest_bundle.json"
+            prompt_file = temp_path / "prompts" / "pass_02.txt"
+            _write_json(book_file, _book_data(1))
+            _write_json(class_file, _preliminary_data(1))
+            prompt_file.parent.mkdir(parents=True, exist_ok=True)
+            prompt_file.write_text("Extraction prompt from file.", encoding="utf-8")
+
+            with (
+                patch.object(pass_02, "DATA_DIR", temp_path / "data"),
+                patch.object(pass_02, "PASS_02_SYSTEM_PROMPT_FILE", prompt_file),
+                patch.object(
+                    pass_02,
+                    "call_openai_structured_cached",
+                    return_value=_valid_pass_02_item("betrayal-001", 1, 1),
+                ) as llm_mock,
+            ):
+                self._run_pass_02(
+                    book_file=book_file,
+                    classification_file=class_file,
+                    output_file=output_file,
+                )
+
+            self.assertEqual(
+                llm_mock.call_args.kwargs["system_prompt"],
+                "Extraction prompt from file.",
+            )
+
+    def test_build_user_prompt_uses_jinja_template(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            template_file = Path(temp_dir) / "user_prompt.j2"
+            template_file.write_text(
+                "Payload: {{ chapter_payload_json }}", encoding="utf-8"
+            )
+            with patch.object(
+                pass_02, "PASS_02_USER_PROMPT_TEMPLATE_FILE", template_file
+            ):
+                prompt = pass_02.build_user_prompt({"chapter_id": "betrayal-001"})
+
+            self.assertIn('"chapter_id": "betrayal-001"', prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

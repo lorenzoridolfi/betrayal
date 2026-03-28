@@ -6,6 +6,8 @@ from pipeline_params import (
     DATA_DIR,
     MODEL_DEFAULT,
     PASS_01_SCHEMA_FILE,
+    PASS_01_SYSTEM_PROMPT_FILE,
+    PASS_01_USER_PROMPT_TEMPLATE_FILE,
     TIMEOUT_SECONDS_DEFAULT,
     get_profile,
     list_profiles,
@@ -15,29 +17,17 @@ from pipeline_common import (
     call_openai_structured_cached,
     load_schema,
     read_json,
+    read_text_file,
+    render_prompt_template,
     validate_with_schema,
     write_json,
 )
 
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-
-
-SYSTEM_PROMPT = (
-    "You classify chapters from a factual biography. "
-    "Use only evidence from the chapter text and respond with valid JSON."
-)
-
-
 def build_user_prompt(chapter_payload: dict) -> str:
-    return (
-        "Analyze this chapter and return the requested JSON object.\n\n"
-        "Requirements:\n"
-        "- Use US English only.\n"
-        "- Do not invent facts.\n"
-        "- The chapter summary must be one paragraph in plain US English.\n"
-        "- Keep chapter_id, chapter_order, chapter_number, and chapter_title aligned with the input.\n\n"
-        f"Chapter input:\n{json.dumps(chapter_payload, ensure_ascii=False)}"
+    return render_prompt_template(
+        PASS_01_USER_PROMPT_TEMPLATE_FILE,
+        {"chapter_payload_json": json.dumps(chapter_payload, ensure_ascii=False)},
     )
 
 
@@ -56,6 +46,7 @@ def main() -> None:
         Path(args.output_file) if args.output_file else profile["pass_01_output"]
     )
     chapter_limit = profile["chapter_limit"]
+    system_prompt = read_text_file(PASS_01_SYSTEM_PROMPT_FILE)
 
     schema = load_schema(PASS_01_SCHEMA_FILE)
     chapter_item_schema = schema["properties"]["chapters"]["items"]
@@ -84,7 +75,7 @@ def main() -> None:
 
         chapter_result = call_openai_structured_cached(
             model=args.model,
-            system_prompt=SYSTEM_PROMPT,
+            system_prompt=system_prompt,
             user_prompt=build_user_prompt(chapter_payload),
             schema_name="pass_01_chapter_classification_item",
             schema=chapter_item_schema,

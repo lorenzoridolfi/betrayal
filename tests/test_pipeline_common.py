@@ -5,6 +5,8 @@ from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
+from jinja2 import UndefinedError
+
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 INGEST_DIR = ROOT_DIR / "ingest"
@@ -23,6 +25,28 @@ SIMPLE_SCHEMA = {
 
 
 class PipelineCommonTests(unittest.TestCase):
+    def test_read_text_file_trims_trailing_whitespace(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "prompt.txt"
+            path.write_text("Prompt text.\n\n", encoding="utf-8")
+            self.assertEqual(pipeline_common.read_text_file(path), "Prompt text.")
+
+    def test_render_prompt_template_inserts_context(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            template_path = Path(temp_dir) / "prompt.j2"
+            template_path.write_text("Hello {{ name }}", encoding="utf-8")
+            rendered = pipeline_common.render_prompt_template(
+                template_path, {"name": "world"}
+            )
+            self.assertEqual(rendered, "Hello world")
+
+    def test_render_prompt_template_fails_on_missing_variable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            template_path = Path(temp_dir) / "prompt.j2"
+            template_path.write_text("Hello {{ name }}", encoding="utf-8")
+            with self.assertRaises(UndefinedError):
+                pipeline_common.render_prompt_template(template_path, {})
+
     def test_cache_hit_skips_llm_call(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             with patch.object(pipeline_common, "CACHE_DIR", Path(temp_dir) / "cache"):

@@ -1,0 +1,1 @@
+You classify chapters from a factual biography. Use only evidence from the chapter text and respond with valid JSON.

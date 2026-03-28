@@ -7,6 +7,8 @@ from pipeline_params import (
     DATA_DIR,
     MODEL_DEFAULT,
     PASS_02_SCHEMA_FILE,
+    PASS_02_SYSTEM_PROMPT_FILE,
+    PASS_02_USER_PROMPT_TEMPLATE_FILE,
     TIMEOUT_SECONDS_DEFAULT,
     get_profile,
     list_profiles,
@@ -16,33 +18,17 @@ from pipeline_common import (
     call_openai_structured_cached,
     load_schema,
     read_json,
+    read_text_file,
+    render_prompt_template,
     validate_with_schema,
     write_json,
 )
 
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-
-
-SYSTEM_PROMPT = (
-    "You extract structured chapter data from a factual biography. "
-    "Use only evidence from the chapter text and return valid JSON."
-)
-
-
 def build_user_prompt(chapter_payload: dict) -> str:
-    return (
-        "Analyze this chapter and return the requested JSON object.\n\n"
-        "Requirements:\n"
-        "- Use US English only.\n"
-        "- Do not invent facts.\n"
-        "- Confirm or correct the preliminary chapter kind.\n"
-        "- If you change the chapter kind, explain why in chapter_kind_change_rationale.\n"
-        "- If you keep the same kind, state that no change was needed.\n"
-        "- Rewrite chunk text to plain, accessible US English.\n"
-        "- Keep chapter metadata aligned with the input.\n"
-        "- Keep chunk order consistent with the narrative order.\n\n"
-        f"Chapter input:\n{json.dumps(chapter_payload, ensure_ascii=False)}"
+    return render_prompt_template(
+        PASS_02_USER_PROMPT_TEMPLATE_FILE,
+        {"chapter_payload_json": json.dumps(chapter_payload, ensure_ascii=False)},
     )
 
 
@@ -68,6 +54,7 @@ def main() -> None:
         Path(args.output_file) if args.output_file else profile["pass_02_output"]
     )
     chapter_limit = profile["chapter_limit"]
+    system_prompt = read_text_file(PASS_02_SYSTEM_PROMPT_FILE)
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     output_schema = load_schema(PASS_02_SCHEMA_FILE)
@@ -125,7 +112,7 @@ def main() -> None:
 
         chapter_result = call_openai_structured_cached(
             model=args.model,
-            system_prompt=SYSTEM_PROMPT,
+            system_prompt=system_prompt,
             user_prompt=build_user_prompt(chapter_payload),
             schema_name="pass_02_rag_bundle_chapter_item",
             schema=llm_chapter_schema,

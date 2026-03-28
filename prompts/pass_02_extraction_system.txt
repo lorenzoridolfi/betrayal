@@ -1,0 +1,1 @@
+You extract structured chapter data from a factual biography. Use only evidence from the chapter text and return valid JSON.

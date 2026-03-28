@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from jsonschema import ValidationError, validate
 from openai import APIConnectionError, APITimeoutError
 from tenacity import (
@@ -30,6 +31,21 @@ class SchemaValidationError(Exception):
 def read_json(path: Path) -> Any:
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
+
+
+def read_text_file(path: Path) -> str:
+    with path.open("r", encoding="utf-8") as file:
+        return file.read().strip()
+
+
+def render_prompt_template(template_path: Path, context: dict[str, Any]) -> str:
+    environment = Environment(
+        loader=FileSystemLoader(str(template_path.parent)),
+        undefined=StrictUndefined,
+        autoescape=False,
+    )
+    template = environment.get_template(template_path.name)
+    return template.render(**context).strip()
 
 
 def write_json(path: Path, data: Any) -> None:
