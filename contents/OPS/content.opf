@@ -1,0 +1,225 @@
+<package xmlns="http://www.idpf.org/2007/opf" prefix="ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/ calibre: https://calibre-ebook.com" unique-identifier="TitleID" version="3.0" xml:lang="en">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    <dc:title id="id">Betrayal</dc:title>
+    <dc:creator id="id-2">Tom Bower</dc:creator>
+    <dc:rights>© Tom Bower 2026</dc:rights>
+    <dc:type>Text</dc:type>
+    <dc:rights>All rights reserved</dc:rights>
+    <dc:source id="src">urn:isbn:9781785126420</dc:source>
+    <dc:identifier>calibre:214</dc:identifier>
+    <dc:identifier>uuid:d7047ddd-2d0b-4452-b601-45bde5e25005</dc:identifier>
+    <dc:identifier id="TitleID">urn:uuid:cf106c0d-ccdc-4433-b715-c9cdc572d38c</dc:identifier>
+    <dc:language>en</dc:language>
+    <dc:contributor id="id-1">calibre (9.5.0) [https://calibre-ebook.com]</dc:contributor>
+    <dc:date>2026-03-19T00:00:00+00:00</dc:date>
+    <dc:publisher>Blink</dc:publisher>
+    <opf:meta refines="#id" property="title-type">main</opf:meta>
+    <opf:meta refines="#id" property="file-as">Betrayal</opf:meta>
+    <meta property="source-of" refines="#src">pagination</meta>
+    <meta property="dcterms:conformsTo">http://www.w3.org/TR/WCAG22/#conformance-level-aa</meta>
+    <link href="http://www.idpf.org/epub/a11y/accessibility-20170105.html#wcag-aa" rel="dcterms:conformsTo"/>
+    <meta property="a11y:certifiedBy">EUP</meta>
+    <meta property="a11y:certifierCredential">Certifiably Accessible</meta>
+    <link href="https://example.com/reports/a11y/pub.html" rel="a11y:certifierReport"/>
+    <meta property="schema:accessMode">textual</meta>
+    <meta property="schema:accessMode">visual</meta>
+    <meta property="schema:accessModeSufficient">textual,visual</meta>
+    <meta property="schema:accessModeSufficient">textual</meta>
+    <meta property="schema:accessibilityFeature">structuralNavigation</meta>
+    <meta property="schema:accessibilityFeature">MathML</meta>
+    <meta property="schema:accessibilityFeature">alternativeText</meta>
+    <meta property="schema:accessibilityAPI">ARIA</meta>
+    <meta property="schema:accessibilityFeature">displayTransformability</meta>
+    <meta property="schema:accessibilityFeature">largePrint</meta>
+    <meta property="schema:accessibilityFeature">captions</meta>
+    <meta property="schema:accessibilityFeature">braille</meta>
+    <meta property="schema:accessibilitySummary">This EPUB is compatible with screen readers and electronic braille devices.</meta>
+    <meta property="schema:accessibilityFeature">transcript</meta>
+    <meta property="schema:accessibilityFeature">highContrastDisplay</meta>
+    <meta property="schema:accessibilityFeature">synchronizedAudioText</meta>
+    <meta property="schema:accessibilityFeature">readingOrder</meta>
+    <meta property="schema:accessibilityControl">fullKeyboardControl</meta>
+    <meta property="schema:accessibilityControl">fullMouseControl</meta>
+    <meta property="schema:accessibilityControl">fullTouchControl</meta>
+    <meta property="schema:accessibilityHazard">none</meta>
+    <meta property="schema:accessibilitySummary">This EPUB is reflowable and supports visual adjustments like font size, font style, spacing, color and layout for better readability. Suitable for visually impaired readers. This publication contains no flashing content, no motion simulation or sound hazards are present.</meta>
+    <meta property="schema:accessibilitySummary">This publication conforms to EPUB Accessibility 1.1 specification and WCAG 2.2 level AA.</meta>
+    <meta property="dcterms:modified">2026-03-19T09:13:34Z</meta>
+    <meta content="x1" name="cover"/>
+    <opf:meta refines="#id-1" property="role" scheme="marc:relators">bkp</opf:meta>
+    <opf:meta refines="#id-2" property="role" scheme="marc:relators">aut</opf:meta>
+    <opf:meta refines="#id-2" property="file-as">Bower, Tom</opf:meta>
+    <opf:meta property="calibre:user_metadata">{
+  "#isbn": {
+    "#value#": "",
+    "category_sort": "value",
+    "colnum": 1,
+    "column": "value",
+    "datatype": "composite",
+    "display": {
+      "composite_sort": "text",
+      "composite_template": "{identifiers:select(isbn)}",
+      "contains_html": false,
+      "description": "",
+      "make_category": false,
+      "use_decorations": 0
+    },
+    "is_category": false,
+    "is_csp": false,
+    "is_custom": true,
+    "is_editable": true,
+    "is_multiple": null,
+    "is_multiple2": {},
+    "kind": "field",
+    "label": "isbn",
+    "link_column": "value",
+    "name": "ISBN",
+    "rec_index": 23,
+    "search_terms": [
+      "#isbn"
+    ],
+    "table": "custom_column_1"
+  }
+}</opf:meta>
+  </metadata>
+  <manifest>
+    <item href="001-Cover.xhtml" id="f1" media-type="application/xhtml+xml"/>
+    <item href="002-Half_Title.xhtml" id="f2" media-type="application/xhtml+xml"/>
+    <item href="003-Also_by_Tom_Bower.xhtml" id="f3" media-type="application/xhtml+xml"/>
+    <item href="004-Title_Page.xhtml" id="f4" media-type="application/xhtml+xml"/>
+    <item href="005-Copyright.xhtml" id="f5" media-type="application/xhtml+xml"/>
+    <item href="006-Contents.xhtml" id="f6" media-type="application/xhtml+xml"/>
+    <item href="007-Dedication.xhtml" id="f7" media-type="application/xhtml+xml"/>
+    <item href="008-Prologue.xhtml" id="f8" media-type="application/xhtml+xml"/>
+    <item href="009-Chapter_1.xhtml" id="f9" media-type="application/xhtml+xml"/>
+    <item href="010-Chapter_2.xhtml" id="f10" media-type="application/xhtml+xml"/>
+    <item href="011-Chapter_3.xhtml" id="f11" media-type="application/xhtml+xml"/>
+    <item href="012-Chapter_4.xhtml" id="f12" media-type="application/xhtml+xml"/>
+    <item href="013-Chapter_5.xhtml" id="f13" media-type="application/xhtml+xml"/>
+    <item href="014-Chapter_6.xhtml" id="f14" media-type="application/xhtml+xml"/>
+    <item href="015-Chapter_7.xhtml" id="f15" media-type="application/xhtml+xml"/>
+    <item href="016-Chapter_8.xhtml" id="f16" media-type="application/xhtml+xml"/>
+    <item href="017-Chapter_9.xhtml" id="f17" media-type="application/xhtml+xml"/>
+    <item href="018-Chapter_10.xhtml" id="f18" media-type="application/xhtml+xml"/>
+    <item href="019-Chapter_11.xhtml" id="f19" media-type="application/xhtml+xml"/>
+    <item href="020-Chapter_12.xhtml" id="f20" media-type="application/xhtml+xml"/>
+    <item href="021-Chapter_13.xhtml" id="f21" media-type="application/xhtml+xml"/>
+    <item href="022-Chapter_14.xhtml" id="f22" media-type="application/xhtml+xml"/>
+    <item href="023-Chapter_15.xhtml" id="f23" media-type="application/xhtml+xml"/>
+    <item href="024-Chapter_16.xhtml" id="f24" media-type="application/xhtml+xml"/>
+    <item href="025-Chapter_17.xhtml" id="f25" media-type="application/xhtml+xml"/>
+    <item href="026-Chapter_18.xhtml" id="f26" media-type="application/xhtml+xml"/>
+    <item href="027-Chapter_19.xhtml" id="f27" media-type="application/xhtml+xml"/>
+    <item href="028-Chapter_20.xhtml" id="f28" media-type="application/xhtml+xml"/>
+    <item href="029-Chapter_21.xhtml" id="f29" media-type="application/xhtml+xml"/>
+    <item href="030-Chapter_22.xhtml" id="f30" media-type="application/xhtml+xml"/>
+    <item href="031-Chapter_23.xhtml" id="f31" media-type="application/xhtml+xml"/>
+    <item href="032-Chapter_24.xhtml" id="f32" media-type="application/xhtml+xml"/>
+    <item href="033-Chapter_25.xhtml" id="f33" media-type="application/xhtml+xml"/>
+    <item href="034-Chapter_26.xhtml" id="f34" media-type="application/xhtml+xml"/>
+    <item href="035-Chapter_27.xhtml" id="f35" media-type="application/xhtml+xml"/>
+    <item href="036-Chapter_28.xhtml" id="f36" media-type="application/xhtml+xml"/>
+    <item href="037-Chapter_29.xhtml" id="f37" media-type="application/xhtml+xml"/>
+    <item href="038-Chapter_30.xhtml" id="f38" media-type="application/xhtml+xml"/>
+    <item href="039-Chapter_31.xhtml" id="f39" media-type="application/xhtml+xml"/>
+    <item href="040-Chapter_32.xhtml" id="f40" media-type="application/xhtml+xml"/>
+    <item href="041-Chapter_33.xhtml" id="f41" media-type="application/xhtml+xml"/>
+    <item href="042-Chapter_34.xhtml" id="f42" media-type="application/xhtml+xml"/>
+    <item href="043-Chapter_35.xhtml" id="f43" media-type="application/xhtml+xml"/>
+    <item href="044-Chapter_36.xhtml" id="f44" media-type="application/xhtml+xml"/>
+    <item href="045-Chapter_37.xhtml" id="f45" media-type="application/xhtml+xml"/>
+    <item href="046-Chapter_38.xhtml" id="f46" media-type="application/xhtml+xml"/>
+    <item href="047-Chapter_39.xhtml" id="f47" media-type="application/xhtml+xml"/>
+    <item href="048-Chapter_40.xhtml" id="f48" media-type="application/xhtml+xml"/>
+    <item href="049-Chapter_41.xhtml" id="f49" media-type="application/xhtml+xml"/>
+    <item href="050-Chapter_42.xhtml" id="f50" media-type="application/xhtml+xml"/>
+    <item href="051-Chapter_43.xhtml" id="f51" media-type="application/xhtml+xml"/>
+    <item href="052-Acknowledgements.xhtml" id="f52" media-type="application/xhtml+xml"/>
+    <item href="053-Endnotes.xhtml" id="f53" media-type="application/xhtml+xml"/>
+    <item href="054-Index.xhtml" id="f54" media-type="application/xhtml+xml"/>
+    <item href="055-Photos.xhtml" id="f55" media-type="application/xhtml+xml"/>
+    <item href="056-Nav.xhtml" id="f56" media-type="application/xhtml+xml" properties="nav"/>
+    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
+    <item href="style.css" id="x0" media-type="text/css"/>
+    <item href="images/cover.jpg" id="x1" media-type="image/jpeg"/>
+    <item href="images/plate1-1.jpg" id="x3" media-type="image/jpeg"/>
+    <item href="images/plate1-2.jpg" id="x4" media-type="image/jpeg"/>
+    <item href="images/plate1-3.jpg" id="x5" media-type="image/jpeg"/>
+    <item href="images/plate1-4.jpg" id="x6" media-type="image/jpeg"/>
+    <item href="images/plate1-5.jpg" id="x7" media-type="image/jpeg"/>
+    <item href="images/plate1-6.jpg" id="x8" media-type="image/jpeg"/>
+    <item href="images/plate1-7.jpg" id="x9" media-type="image/jpeg"/>
+    <item href="images/plate1-8.jpg" id="x10" media-type="image/jpeg"/>
+    <item href="images/plate2-1.jpg" id="x11" media-type="image/jpeg"/>
+    <item href="images/plate2-2.jpg" id="x12" media-type="image/jpeg"/>
+    <item href="images/plate2-3.jpg" id="x13" media-type="image/jpeg"/>
+    <item href="images/plate2-4.jpg" id="x14" media-type="image/jpeg"/>
+    <item href="images/plate2-5.jpg" id="x15" media-type="image/jpeg"/>
+    <item href="images/plate2-6.jpg" id="x16" media-type="image/jpeg"/>
+    <item href="images/plate2-7.jpg" id="x17" media-type="image/jpeg"/>
+    <item href="images/plate2-8.jpg" id="x18" media-type="image/jpeg"/>
+    <item href="images/title.jpg" id="x2" media-type="image/jpeg"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="f1"/>
+    <itemref idref="f2"/>
+    <itemref idref="f3"/>
+    <itemref idref="f4"/>
+    <itemref idref="f5"/>
+    <itemref idref="f6"/>
+    <itemref idref="f7"/>
+    <itemref idref="f8"/>
+    <itemref idref="f9"/>
+    <itemref idref="f10"/>
+    <itemref idref="f11"/>
+    <itemref idref="f12"/>
+    <itemref idref="f13"/>
+    <itemref idref="f14"/>
+    <itemref idref="f15"/>
+    <itemref idref="f16"/>
+    <itemref idref="f17"/>
+    <itemref idref="f18"/>
+    <itemref idref="f19"/>
+    <itemref idref="f20"/>
+    <itemref idref="f21"/>
+    <itemref idref="f22"/>
+    <itemref idref="f23"/>
+    <itemref idref="f24"/>
+    <itemref idref="f25"/>
+    <itemref idref="f26"/>
+    <itemref idref="f27"/>
+    <itemref idref="f28"/>
+    <itemref idref="f29"/>
+    <itemref idref="f30"/>
+    <itemref idref="f31"/>
+    <itemref idref="f32"/>
+    <itemref idref="f33"/>
+    <itemref idref="f34"/>
+    <itemref idref="f35"/>
+    <itemref idref="f36"/>
+    <itemref idref="f37"/>
+    <itemref idref="f38"/>
+    <itemref idref="f39"/>
+    <itemref idref="f40"/>
+    <itemref idref="f41"/>
+    <itemref idref="f42"/>
+    <itemref idref="f43"/>
+    <itemref idref="f44"/>
+    <itemref idref="f45"/>
+    <itemref idref="f46"/>
+    <itemref idref="f47"/>
+    <itemref idref="f48"/>
+    <itemref idref="f49"/>
+    <itemref idref="f50"/>
+    <itemref idref="f51"/>
+    <itemref idref="f52"/>
+    <itemref idref="f53"/>
+    <itemref idref="f54"/>
+    <itemref idref="f55"/>
+  </spine>
+  <guide>
+    <reference href="001-Cover.xhtml" title="Cover" type="cover"/>
+    <reference href="004-Title_Page.xhtml" title="Title" type="text"/>
+    <reference href="006-Contents.xhtml" title="Contents" type="toc"/>
+  </guide>
+</package>

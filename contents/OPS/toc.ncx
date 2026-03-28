@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><ncx xmlns:ncx="http://www.daisy.org/z3986/2005/ncx/" xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en">
+<head>
+<meta name="dtb:uid" content="9781785126420"/>
+<meta name="dtb:totalPageCount" content="0"/>
+<meta name="dtb:depth" content="2"/>
+</head>
+<docTitle>
+<text>Betrayal</text>
+</docTitle>
+<docAuthor>
+<text>Tom Bower</text>
+</docAuthor>
+<navMap>
+<navPoint id="n1" playOrder="1">
+<navLabel>
+<text>Cover</text>
+</navLabel>
+<content src="001-Cover.xhtml"/>
+</navPoint>
+<navPoint id="n2" playOrder="2">
+<navLabel>
+<text>Half Title</text>
+</navLabel>
+<content src="002-Half_Title.xhtml"/>
+</navPoint>
+<navPoint id="n3" playOrder="3">
+<navLabel>
+<text>Also by Tom Bower</text>
+</navLabel>
+<content src="003-Also_by_Tom_Bower.xhtml"/>
+</navPoint>
+<navPoint id="n4" playOrder="4">
+<navLabel>
+<text>Title Page</text>
+</navLabel>
+<content src="004-Title_Page.xhtml"/>
+</navPoint>
+<navPoint id="n5" playOrder="5">
+<navLabel>
+<text>Copyright</text>
+</navLabel>
+<content src="005-Copyright.xhtml"/>
+</navPoint>
+<navPoint id="n6" playOrder="6">
+<navLabel>
+<text>Contents</text>
+</navLabel>
+<content src="006-Contents.xhtml"/>
+</navPoint>
+<navPoint id="n7" playOrder="7">
+<navLabel>
+<text>Dedication</text>
+</navLabel>
+<content src="007-Dedication.xhtml"/>
+</navPoint>
+<navPoint id="n8" playOrder="8">
+<navLabel>
+<text>Prologue</text>
+</navLabel>
+<content src="008-Prologue.xhtml"/>
+</navPoint>
+<navPoint id="n9" playOrder="9">
+<navLabel>
+<text>1. Manchester, 5th September 2022</text>
+</navLabel>
+<content src="009-Chapter_1.xhtml"/>
+</navPoint>
+<navPoint id="n10" playOrder="10">
+<navLabel>
+<text>2. Global Celebrity</text>
+</navLabel>
+<content src="010-Chapter_2.xhtml"/>
+</navPoint>
+<navPoint id="n11" playOrder="11">
+<navLabel>
+<text>3. The Tea Party</text>
+</navLabel>
+<content src="011-Chapter_3.xhtml"/>
+</navPoint>
+<navPoint id="n12" playOrder="12">
+<navLabel>
+<text>4. William and Harry</text>
+</navLabel>
+<content src="012-Chapter_4.xhtml"/>
+</navPoint>
+<navPoint id="n13" playOrder="13">
+<navLabel>
+<text>5. Briefings</text>
+</navLabel>
+<content src="013-Chapter_5.xhtml"/>
+</navPoint>
+<navPoint id="n14" playOrder="14">
+<navLabel>
+<text>6. A Divisive Agent</text>
+</navLabel>
+<content src="014-Chapter_6.xhtml"/>
+</navPoint>
+<navPoint id="n15" playOrder="15">
+<navLabel>
+<text>7. Leaving Britain</text>
+</navLabel>
+<content src="015-Chapter_7.xhtml"/>
+</navPoint>
+<navPoint id="n16" playOrder="16">
+<navLabel>
+<text>8. Sandringham</text>
+</navLabel>
+<content src="016-Chapter_8.xhtml"/>
+</navPoint>
+<navPoint id="n17" playOrder="17">
+<navLabel>
+<text>9. Freedom</text>
+</navLabel>
+<content src="017-Chapter_9.xhtml"/>
+</navPoint>
+<navPoint id="n18" playOrder="18">
+<navLabel>
+<text>10. Netflix</text>
+</navLabel>
+<content src="018-Chapter_10.xhtml"/>
+</navPoint>
+<navPoint id="n19" playOrder="19">
+<navLabel>
+<text>11. ‘My Truth’</text>
+</navLabel>
+<content src="019-Chapter_11.xhtml"/>
+</navPoint>
+<navPoint id="n20" playOrder="20">
+<navLabel>
+<text>12. ‘The Me You Can’t See’</text>
+</navLabel>
+<content src="020-Chapter_12.xhtml"/>
+</navPoint>
+<navPoint id="n21" playOrder="21">
+<navLabel>
+<text>13. Security</text>
+</navLabel>
+<content src="021-Chapter_13.xhtml"/>
+</navPoint>
+<navPoint id="n22" playOrder="22">
+<navLabel>
+<text>14. Spare</text>
+</navLabel>
+<content src="022-Chapter_14.xhtml"/>
+</navPoint>
+<navPoint id="n23" playOrder="23">
+<navLabel>
+<text>15. Jubilee</text>
+</navLabel>
+<content src="023-Chapter_15.xhtml"/>
+</navPoint>
+<navPoint id="n24" playOrder="24">
+<navLabel>
+<text>16. Archetypes</text>
+</navLabel>
+<content src="024-Chapter_16.xhtml"/>
+</navPoint>
+<navPoint id="n25" playOrder="25">
+<navLabel>
+<text>17. The Funeral</text>
+</navLabel>
+<content src="025-Chapter_17.xhtml"/>
+</navPoint>
+<navPoint id="n26" playOrder="26">
+<navLabel>
+<text>18. Protection</text>
+</navLabel>
+<content src="026-Chapter_18.xhtml"/>
+</navPoint>
+<navPoint id="n27" playOrder="27">
+<navLabel>
+<text>19. Publication</text>
+</navLabel>
+<content src="027-Chapter_19.xhtml"/>
+</navPoint>
+<navPoint id="n28" playOrder="28">
+<navLabel>
+<text>20. High Court</text>
+</navLabel>
+<content src="028-Chapter_20.xhtml"/>
+</navPoint>
+<navPoint id="n29" playOrder="29">
+<navLabel>
+<text>21. Coronation</text>
+</navLabel>
+<content src="029-Chapter_21.xhtml"/>
+</navPoint>
+<navPoint id="n30" playOrder="30">
+<navLabel>
+<text>22. The Chase</text>
+</navLabel>
+<content src="030-Chapter_22.xhtml"/>
+</navPoint>
+<navPoint id="n31" playOrder="31">
+<navLabel>
+<text>23. Cross-Examination</text>
+</navLabel>
+<content src="031-Chapter_23.xhtml"/>
+</navPoint>
+<navPoint id="n32" playOrder="32">
+<navLabel>
+<text>24. Blow-Up</text>
+</navLabel>
+<content src="032-Chapter_24.xhtml"/>
+</navPoint>
+<navPoint id="n33" playOrder="33">
+<navLabel>
+<text>25. Out of Africa</text>
+</navLabel>
+<content src="033-Chapter_25.xhtml"/>
+</navPoint>
+<navPoint id="n34" playOrder="34">
+<navLabel>
+<text>26. Düsseldorf</text>
+</navLabel>
+<content src="034-Chapter_26.xhtml"/>
+</navPoint>
+<navPoint id="n35" playOrder="35">
+<navLabel>
+<text>27. Where Billionaires Escape from Millionaires</text>
+</navLabel>
+<content src="035-Chapter_27.xhtml"/>
+</navPoint>
+<navPoint id="n36" playOrder="36">
+<navLabel>
+<text>28. Endgame</text>
+</navLabel>
+<content src="036-Chapter_28.xhtml"/>
+</navPoint>
+<navPoint id="n37" playOrder="37">
+<navLabel>
+<text>29. The Biggest Losers</text>
+</navLabel>
+<content src="037-Chapter_29.xhtml"/>
+</navPoint>
+<navPoint id="n38" playOrder="38">
+<navLabel>
+<text>30. A Living Legend</text>
+</navLabel>
+<content src="038-Chapter_30.xhtml"/>
+</navPoint>
+<navPoint id="n39" playOrder="39">
+<navLabel>
+<text>31. Bad Optics</text>
+</navLabel>
+<content src="039-Chapter_31.xhtml"/>
+</navPoint>
+<navPoint id="n40" playOrder="40">
+<navLabel>
+<text>32. The Brand</text>
+</navLabel>
+<content src="040-Chapter_32.xhtml"/>
+</navPoint>
+<navPoint id="n41" playOrder="41">
+<navLabel>
+<text>33. Nigeria</text>
+</navLabel>
+<content src="041-Chapter_33.xhtml"/>
+</navPoint>
+<navPoint id="n42" playOrder="42">
+<navLabel>
+<text>34. Battling</text>
+</navLabel>
+<content src="042-Chapter_34.xhtml"/>
+</navPoint>
+<navPoint id="n43" playOrder="43">
+<navLabel>
+<text>35. Colombia</text>
+</navLabel>
+<content src="043-Chapter_35.xhtml"/>
+</navPoint>
+<navPoint id="n44" playOrder="44">
+<navLabel>
+<text>36. Sidelined</text>
+</navLabel>
+<content src="044-Chapter_36.xhtml"/>
+</navPoint>
+<navPoint id="n45" playOrder="45">
+<navLabel>
+<text>37. Sentebale</text>
+</navLabel>
+<content src="045-Chapter_37.xhtml"/>
+</navPoint>
+<navPoint id="n46" playOrder="46">
+<navLabel>
+<text>38. American Hustle</text>
+</navLabel>
+<content src="046-Chapter_38.xhtml"/>
+</navPoint>
+<navPoint id="n47" playOrder="47">
+<navLabel>
+<text>39. Vancouver</text>
+</navLabel>
+<content src="047-Chapter_39.xhtml"/>
+</navPoint>
+<navPoint id="n48" playOrder="48">
+<navLabel>
+<text>40. Meghan, As Ever</text>
+</navLabel>
+<content src="048-Chapter_40.xhtml"/>
+</navPoint>
+<navPoint id="n49" playOrder="49">
+<navLabel>
+<text>41. Contrasting Lives</text>
+</navLabel>
+<content src="049-Chapter_41.xhtml"/>
+</navPoint>
+<navPoint id="n50" playOrder="50">
+<navLabel>
+<text>42. The Last Calamity</text>
+</navLabel>
+<content src="050-Chapter_42.xhtml"/>
+</navPoint>
+<navPoint id="n51" playOrder="51">
+<navLabel>
+<text>43. Make or Break</text>
+</navLabel>
+<content src="051-Chapter_43.xhtml"/>
+</navPoint>
+<navPoint id="n52" playOrder="52">
+<navLabel>
+<text>Acknowledgements</text>
+</navLabel>
+<content src="052-Acknowledgements.xhtml"/>
+</navPoint>
+<navPoint id="n53" playOrder="53">
+<navLabel>
+<text>Endnotes</text>
+</navLabel>
+<content src="053-Endnotes.xhtml"/>
+</navPoint>
+<navPoint id="n54" playOrder="54">
+<navLabel>
+<text>Index</text>
+</navLabel>
+<content src="054-Index.xhtml"/>
+</navPoint>
+<navPoint id="n55" playOrder="55">
+<navLabel>
+<text>Photos</text>
+</navLabel>
+<content src="055-Photos.xhtml"/>
+</navPoint>
+</navMap>
+</ncx>
