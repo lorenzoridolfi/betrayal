@@ -1,0 +1,858 @@
+{
+  "total_files": 44,
+  "all_inner_tags": [
+    "a",
+    "em",
+    "span",
+    "strong",
+    "sup"
+  ],
+  "normalized_totals": {
+    "sup_removed": 988,
+    "a_text_kept": 987,
+    "em_text_kept": 553,
+    "strong_text_kept": 4,
+    "span_text_kept": 0,
+    "span_empty_removed": 368,
+    "other_tags": {}
+  },
+  "files": [
+    {
+      "source_file": "008-Prologue.xhtml",
+      "paragraph_count": 9,
+      "raw_inner_tags": {
+        "em": 3,
+        "span": 2
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 0,
+        "a_text_kept": 0,
+        "em_text_kept": 3,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 2,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "009-Chapter_1.xhtml",
+      "paragraph_count": 39,
+      "raw_inner_tags": {
+        "a": 9,
+        "em": 13,
+        "span": 9,
+        "sup": 9
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 9,
+        "a_text_kept": 9,
+        "em_text_kept": 13,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 9,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "010-Chapter_2.xhtml",
+      "paragraph_count": 28,
+      "raw_inner_tags": {
+        "a": 4,
+        "em": 5,
+        "span": 8,
+        "sup": 4
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 4,
+        "a_text_kept": 4,
+        "em_text_kept": 5,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 8,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "011-Chapter_3.xhtml",
+      "paragraph_count": 36,
+      "raw_inner_tags": {
+        "a": 8,
+        "em": 3,
+        "span": 7,
+        "sup": 8
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 8,
+        "a_text_kept": 8,
+        "em_text_kept": 3,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 7,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "012-Chapter_4.xhtml",
+      "paragraph_count": 18,
+      "raw_inner_tags": {
+        "a": 14,
+        "em": 3,
+        "span": 5,
+        "sup": 14
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 14,
+        "a_text_kept": 14,
+        "em_text_kept": 3,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 5,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "013-Chapter_5.xhtml",
+      "paragraph_count": 43,
+      "raw_inner_tags": {
+        "a": 26,
+        "em": 12,
+        "span": 11,
+        "sup": 26
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 26,
+        "a_text_kept": 26,
+        "em_text_kept": 12,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "014-Chapter_6.xhtml",
+      "paragraph_count": 36,
+      "raw_inner_tags": {
+        "a": 28,
+        "em": 10,
+        "span": 8,
+        "sup": 28
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 28,
+        "a_text_kept": 28,
+        "em_text_kept": 10,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 8,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "015-Chapter_7.xhtml",
+      "paragraph_count": 22,
+      "raw_inner_tags": {
+        "a": 8,
+        "em": 4,
+        "span": 6,
+        "sup": 8
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 8,
+        "a_text_kept": 8,
+        "em_text_kept": 4,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 6,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "016-Chapter_8.xhtml",
+      "paragraph_count": 31,
+      "raw_inner_tags": {
+        "a": 15,
+        "em": 4,
+        "span": 8,
+        "sup": 15
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 15,
+        "a_text_kept": 15,
+        "em_text_kept": 4,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 8,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "017-Chapter_9.xhtml",
+      "paragraph_count": 44,
+      "raw_inner_tags": {
+        "a": 27,
+        "em": 14,
+        "span": 12,
+        "sup": 27
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 27,
+        "a_text_kept": 27,
+        "em_text_kept": 14,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 12,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "018-Chapter_10.xhtml",
+      "paragraph_count": 21,
+      "raw_inner_tags": {
+        "a": 14,
+        "em": 7,
+        "span": 5,
+        "sup": 14
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 14,
+        "a_text_kept": 14,
+        "em_text_kept": 7,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 5,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "019-Chapter_11.xhtml",
+      "paragraph_count": 50,
+      "raw_inner_tags": {
+        "a": 35,
+        "em": 16,
+        "span": 11,
+        "sup": 35
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 35,
+        "a_text_kept": 35,
+        "em_text_kept": 16,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "020-Chapter_12.xhtml",
+      "paragraph_count": 47,
+      "raw_inner_tags": {
+        "a": 18,
+        "em": 6,
+        "span": 8,
+        "sup": 18
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 18,
+        "a_text_kept": 18,
+        "em_text_kept": 6,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 8,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "021-Chapter_13.xhtml",
+      "paragraph_count": 42,
+      "raw_inner_tags": {
+        "a": 22,
+        "em": 11,
+        "span": 11,
+        "sup": 23
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 23,
+        "a_text_kept": 22,
+        "em_text_kept": 11,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "022-Chapter_14.xhtml",
+      "paragraph_count": 43,
+      "raw_inner_tags": {
+        "a": 23,
+        "em": 17,
+        "span": 11,
+        "sup": 23
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 23,
+        "a_text_kept": 23,
+        "em_text_kept": 17,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "023-Chapter_15.xhtml",
+      "paragraph_count": 19,
+      "raw_inner_tags": {
+        "a": 10,
+        "em": 2,
+        "span": 4,
+        "sup": 10
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 10,
+        "a_text_kept": 10,
+        "em_text_kept": 2,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 4,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "024-Chapter_16.xhtml",
+      "paragraph_count": 47,
+      "raw_inner_tags": {
+        "a": 31,
+        "em": 17,
+        "span": 13,
+        "sup": 31
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 31,
+        "a_text_kept": 31,
+        "em_text_kept": 17,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 13,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "025-Chapter_17.xhtml",
+      "paragraph_count": 29,
+      "raw_inner_tags": {
+        "a": 21,
+        "em": 4,
+        "span": 7,
+        "strong": 1,
+        "sup": 21
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 21,
+        "a_text_kept": 21,
+        "em_text_kept": 4,
+        "strong_text_kept": 1,
+        "span_text_kept": 0,
+        "span_empty_removed": 7,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "026-Chapter_18.xhtml",
+      "paragraph_count": 47,
+      "raw_inner_tags": {
+        "a": 27,
+        "em": 30,
+        "span": 12,
+        "sup": 27
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 27,
+        "a_text_kept": 27,
+        "em_text_kept": 30,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 12,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "027-Chapter_19.xhtml",
+      "paragraph_count": 61,
+      "raw_inner_tags": {
+        "a": 49,
+        "em": 23,
+        "span": 14,
+        "sup": 49
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 49,
+        "a_text_kept": 49,
+        "em_text_kept": 23,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 14,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "028-Chapter_20.xhtml",
+      "paragraph_count": 41,
+      "raw_inner_tags": {
+        "a": 40,
+        "em": 33,
+        "span": 11,
+        "sup": 40
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 40,
+        "a_text_kept": 40,
+        "em_text_kept": 33,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "029-Chapter_21.xhtml",
+      "paragraph_count": 16,
+      "raw_inner_tags": {
+        "a": 3,
+        "em": 4,
+        "span": 4,
+        "sup": 3
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 3,
+        "a_text_kept": 3,
+        "em_text_kept": 4,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 4,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "030-Chapter_22.xhtml",
+      "paragraph_count": 31,
+      "raw_inner_tags": {
+        "a": 19,
+        "em": 11,
+        "span": 7,
+        "sup": 19
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 19,
+        "a_text_kept": 19,
+        "em_text_kept": 11,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 7,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "031-Chapter_23.xhtml",
+      "paragraph_count": 30,
+      "raw_inner_tags": {
+        "a": 12,
+        "em": 37,
+        "span": 7,
+        "sup": 12
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 12,
+        "a_text_kept": 12,
+        "em_text_kept": 37,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 7,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "032-Chapter_24.xhtml",
+      "paragraph_count": 19,
+      "raw_inner_tags": {
+        "a": 16,
+        "em": 6,
+        "span": 4,
+        "sup": 16
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 16,
+        "a_text_kept": 16,
+        "em_text_kept": 6,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 4,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "033-Chapter_25.xhtml",
+      "paragraph_count": 37,
+      "raw_inner_tags": {
+        "a": 31,
+        "em": 7,
+        "span": 11,
+        "sup": 31
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 31,
+        "a_text_kept": 31,
+        "em_text_kept": 7,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "034-Chapter_26.xhtml",
+      "paragraph_count": 15,
+      "raw_inner_tags": {
+        "a": 7,
+        "em": 7,
+        "span": 3,
+        "sup": 7
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 7,
+        "a_text_kept": 7,
+        "em_text_kept": 7,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 3,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "035-Chapter_27.xhtml",
+      "paragraph_count": 23,
+      "raw_inner_tags": {
+        "a": 13,
+        "em": 4,
+        "span": 5,
+        "sup": 13
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 13,
+        "a_text_kept": 13,
+        "em_text_kept": 4,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 5,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "036-Chapter_28.xhtml",
+      "paragraph_count": 35,
+      "raw_inner_tags": {
+        "a": 34,
+        "em": 19,
+        "span": 8,
+        "sup": 34
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 34,
+        "a_text_kept": 34,
+        "em_text_kept": 19,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 8,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "037-Chapter_29.xhtml",
+      "paragraph_count": 26,
+      "raw_inner_tags": {
+        "a": 28,
+        "em": 14,
+        "span": 6,
+        "sup": 28
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 28,
+        "a_text_kept": 28,
+        "em_text_kept": 14,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 6,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "038-Chapter_30.xhtml",
+      "paragraph_count": 26,
+      "raw_inner_tags": {
+        "a": 13,
+        "em": 5,
+        "span": 5,
+        "sup": 13
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 13,
+        "a_text_kept": 13,
+        "em_text_kept": 5,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 5,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "039-Chapter_31.xhtml",
+      "paragraph_count": 28,
+      "raw_inner_tags": {
+        "a": 21,
+        "em": 8,
+        "span": 7,
+        "strong": 1,
+        "sup": 21
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 21,
+        "a_text_kept": 21,
+        "em_text_kept": 8,
+        "strong_text_kept": 1,
+        "span_text_kept": 0,
+        "span_empty_removed": 7,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "040-Chapter_32.xhtml",
+      "paragraph_count": 28,
+      "raw_inner_tags": {
+        "a": 23,
+        "em": 7,
+        "span": 8,
+        "sup": 23
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 23,
+        "a_text_kept": 23,
+        "em_text_kept": 7,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 8,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "041-Chapter_33.xhtml",
+      "paragraph_count": 43,
+      "raw_inner_tags": {
+        "a": 22,
+        "em": 10,
+        "span": 11,
+        "sup": 22
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 22,
+        "a_text_kept": 22,
+        "em_text_kept": 10,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "042-Chapter_34.xhtml",
+      "paragraph_count": 24,
+      "raw_inner_tags": {
+        "a": 27,
+        "em": 10,
+        "span": 6,
+        "sup": 27
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 27,
+        "a_text_kept": 27,
+        "em_text_kept": 10,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 6,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "043-Chapter_35.xhtml",
+      "paragraph_count": 40,
+      "raw_inner_tags": {
+        "a": 39,
+        "em": 12,
+        "span": 10,
+        "sup": 39
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 39,
+        "a_text_kept": 39,
+        "em_text_kept": 12,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 10,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "044-Chapter_36.xhtml",
+      "paragraph_count": 35,
+      "raw_inner_tags": {
+        "a": 36,
+        "em": 18,
+        "span": 9,
+        "sup": 36
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 36,
+        "a_text_kept": 36,
+        "em_text_kept": 18,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 9,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "045-Chapter_37.xhtml",
+      "paragraph_count": 25,
+      "raw_inner_tags": {
+        "a": 6,
+        "em": 1,
+        "span": 5,
+        "sup": 6
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 6,
+        "a_text_kept": 6,
+        "em_text_kept": 1,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 5,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "046-Chapter_38.xhtml",
+      "paragraph_count": 46,
+      "raw_inner_tags": {
+        "a": 32,
+        "em": 21,
+        "span": 11,
+        "sup": 32
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 32,
+        "a_text_kept": 32,
+        "em_text_kept": 21,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "047-Chapter_39.xhtml",
+      "paragraph_count": 20,
+      "raw_inner_tags": {
+        "a": 6,
+        "em": 1,
+        "span": 5,
+        "sup": 6
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 6,
+        "a_text_kept": 6,
+        "em_text_kept": 1,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 5,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "048-Chapter_40.xhtml",
+      "paragraph_count": 43,
+      "raw_inner_tags": {
+        "a": 58,
+        "em": 42,
+        "span": 11,
+        "sup": 58
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 58,
+        "a_text_kept": 58,
+        "em_text_kept": 42,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 11,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "049-Chapter_41.xhtml",
+      "paragraph_count": 69,
+      "raw_inner_tags": {
+        "a": 51,
+        "em": 17,
+        "span": 15,
+        "strong": 2,
+        "sup": 51
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 51,
+        "a_text_kept": 51,
+        "em_text_kept": 17,
+        "strong_text_kept": 2,
+        "span_text_kept": 0,
+        "span_empty_removed": 15,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "050-Chapter_42.xhtml",
+      "paragraph_count": 62,
+      "raw_inner_tags": {
+        "a": 41,
+        "em": 26,
+        "span": 17,
+        "sup": 41
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 41,
+        "a_text_kept": 41,
+        "em_text_kept": 26,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 17,
+        "other_tags": {}
+      }
+    },
+    {
+      "source_file": "051-Chapter_43.xhtml",
+      "paragraph_count": 33,
+      "raw_inner_tags": {
+        "a": 20,
+        "em": 29,
+        "span": 10,
+        "sup": 20
+      },
+      "normalized_tag_actions": {
+        "sup_removed": 20,
+        "a_text_kept": 20,
+        "em_text_kept": 29,
+        "strong_text_kept": 0,
+        "span_text_kept": 0,
+        "span_empty_removed": 10,
+        "other_tags": {}
+      }
+    }
+  ]
+}

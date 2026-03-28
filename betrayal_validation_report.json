@@ -1,0 +1,360 @@
+{
+  "is_valid": true,
+  "chapter_count": 44,
+  "total_token_count": 115911,
+  "errors": [],
+  "chapters": [
+    {
+      "chapter_index": 1,
+      "source_file": "008-Prologue.xhtml",
+      "chapter_type": "prologue",
+      "paragraph_count": 9,
+      "chapter_token_count": 648,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 2,
+      "source_file": "009-Chapter_1.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 36,
+      "chapter_token_count": 3037,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 3,
+      "source_file": "010-Chapter_2.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 27,
+      "chapter_token_count": 2571,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 4,
+      "source_file": "011-Chapter_3.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 32,
+      "chapter_token_count": 2257,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 5,
+      "source_file": "012-Chapter_4.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 17,
+      "chapter_token_count": 1479,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 6,
+      "source_file": "013-Chapter_5.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 41,
+      "chapter_token_count": 3285,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 7,
+      "source_file": "014-Chapter_6.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 35,
+      "chapter_token_count": 2604,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 8,
+      "source_file": "015-Chapter_7.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 19,
+      "chapter_token_count": 1876,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 9,
+      "source_file": "016-Chapter_8.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 29,
+      "chapter_token_count": 2649,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 10,
+      "source_file": "017-Chapter_9.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 41,
+      "chapter_token_count": 3507,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 11,
+      "source_file": "018-Chapter_10.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 20,
+      "chapter_token_count": 1437,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 12,
+      "source_file": "019-Chapter_11.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 46,
+      "chapter_token_count": 3423,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 13,
+      "source_file": "020-Chapter_12.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 44,
+      "chapter_token_count": 2778,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 14,
+      "source_file": "021-Chapter_13.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 41,
+      "chapter_token_count": 3345,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 15,
+      "source_file": "022-Chapter_14.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 40,
+      "chapter_token_count": 3486,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 16,
+      "source_file": "023-Chapter_15.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 17,
+      "chapter_token_count": 1352,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 17,
+      "source_file": "024-Chapter_16.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 46,
+      "chapter_token_count": 4130,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 18,
+      "source_file": "025-Chapter_17.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 25,
+      "chapter_token_count": 2208,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 19,
+      "source_file": "026-Chapter_18.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 44,
+      "chapter_token_count": 4163,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 20,
+      "source_file": "027-Chapter_19.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 58,
+      "chapter_token_count": 4049,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 21,
+      "source_file": "028-Chapter_20.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 39,
+      "chapter_token_count": 3189,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 22,
+      "source_file": "029-Chapter_21.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 15,
+      "chapter_token_count": 1370,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 23,
+      "source_file": "030-Chapter_22.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 30,
+      "chapter_token_count": 2397,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 24,
+      "source_file": "031-Chapter_23.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 29,
+      "chapter_token_count": 2657,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 25,
+      "source_file": "032-Chapter_24.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 16,
+      "chapter_token_count": 1254,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 26,
+      "source_file": "033-Chapter_25.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 33,
+      "chapter_token_count": 3052,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 27,
+      "source_file": "034-Chapter_26.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 13,
+      "chapter_token_count": 1217,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 28,
+      "source_file": "035-Chapter_27.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 22,
+      "chapter_token_count": 1467,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 29,
+      "source_file": "036-Chapter_28.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 32,
+      "chapter_token_count": 2365,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 30,
+      "source_file": "037-Chapter_29.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 25,
+      "chapter_token_count": 1897,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 31,
+      "source_file": "038-Chapter_30.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 25,
+      "chapter_token_count": 1752,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 32,
+      "source_file": "039-Chapter_31.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 26,
+      "chapter_token_count": 2206,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 33,
+      "source_file": "040-Chapter_32.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 27,
+      "chapter_token_count": 2493,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 34,
+      "source_file": "041-Chapter_33.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 42,
+      "chapter_token_count": 3590,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 35,
+      "source_file": "042-Chapter_34.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 22,
+      "chapter_token_count": 1956,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 36,
+      "source_file": "043-Chapter_35.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 36,
+      "chapter_token_count": 2799,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 37,
+      "source_file": "044-Chapter_36.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 34,
+      "chapter_token_count": 2497,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 38,
+      "source_file": "045-Chapter_37.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 23,
+      "chapter_token_count": 1770,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 39,
+      "source_file": "046-Chapter_38.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 45,
+      "chapter_token_count": 3674,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 40,
+      "source_file": "047-Chapter_39.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 19,
+      "chapter_token_count": 1710,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 41,
+      "source_file": "048-Chapter_40.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 41,
+      "chapter_token_count": 3103,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 42,
+      "source_file": "049-Chapter_41.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 66,
+      "chapter_token_count": 4391,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 43,
+      "source_file": "050-Chapter_42.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 60,
+      "chapter_token_count": 5710,
+      "chapter_errors": []
+    },
+    {
+      "chapter_index": 44,
+      "source_file": "051-Chapter_43.xhtml",
+      "chapter_type": "chapter",
+      "paragraph_count": 30,
+      "chapter_token_count": 3111,
+      "chapter_errors": []
+    }
+  ]
+}
