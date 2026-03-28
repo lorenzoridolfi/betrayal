@@ -5,8 +5,9 @@ import tiktoken
 
 
 ROOT_DIR = Path(__file__).resolve().parent
-INPUT_FILE = ROOT_DIR / "betrayal.json"
-REPORT_FILE = ROOT_DIR / "betrayal_validation_report.json"
+DATA_DIR = ROOT_DIR / "data"
+INPUT_FILE = DATA_DIR / "betrayal.json"
+REPORT_FILE = DATA_DIR / "betrayal_validation_report.json"
 EXPECTED_KEYS = {
     "source_file",
     "chapter_type",
@@ -160,6 +161,7 @@ def validate_and_count(data: dict) -> dict:
 
 
 def main() -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     with INPUT_FILE.open("r", encoding="utf-8") as file:
         data = json.load(file)
 

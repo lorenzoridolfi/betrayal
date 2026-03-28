@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "book_id": {
+      "type": "string"
+    },
+    "chapters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "chapter_id": {
+            "type": "string"
+          },
+          "chapter_order": {
+            "type": "integer"
+          },
+          "chapter_number": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "chapter_title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "chapter_kind_preliminary": {
+            "type": "string",
+            "enum": [
+              "narrative",
+              "background",
+              "analysis",
+              "reflection",
+              "conclusion",
+              "appendix",
+              "mixed",
+              "other"
+            ]
+          },
+          "classification_confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "classification_rationale": {
+            "type": "string"
+          },
+          "dominant_entities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dominant_timeframe": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "possible_themes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "chapter_summary_preliminary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "chapter_id",
+          "chapter_order",
+          "chapter_number",
+          "chapter_title",
+          "chapter_kind_preliminary",
+          "classification_confidence",
+          "classification_rationale",
+          "dominant_entities",
+          "dominant_timeframe",
+          "possible_themes",
+          "chapter_summary_preliminary"
+        ]
+      }
+    }
+  },
+  "required": [
+    "book_id",
+    "chapters"
+  ]
+}

@@ -6,7 +6,8 @@ import xml.etree.ElementTree as ET
 
 ROOT_DIR = Path(__file__).resolve().parent
 CONTENTS_FILE = ROOT_DIR / "contents.txt"
-OUTPUT_FILE = ROOT_DIR / "betrayal.json"
+DATA_DIR = ROOT_DIR / "data"
+OUTPUT_FILE = DATA_DIR / "betrayal.json"
 XHTML_NS = "{http://www.w3.org/1999/xhtml}"
 P_TAG = f"{XHTML_NS}p"
 SUP_TAG = f"{XHTML_NS}sup"
@@ -116,6 +117,7 @@ def load_paths(contents_file: Path) -> list[Path]:
 
 
 def main() -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     chapter_paths = load_paths(CONTENTS_FILE)
     examples = [parse_file(path) for path in chapter_paths]
     payload = {"examples": examples}

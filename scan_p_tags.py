@@ -5,7 +5,8 @@ import xml.etree.ElementTree as ET
 
 ROOT_DIR = Path(__file__).resolve().parent
 CONTENTS_FILE = ROOT_DIR / "contents.txt"
-REPORT_FILE = ROOT_DIR / "p_inner_tags_report.json"
+DATA_DIR = ROOT_DIR / "data"
+REPORT_FILE = DATA_DIR / "p_inner_tags_report.json"
 XHTML_NS = "{http://www.w3.org/1999/xhtml}"
 P_TAG = f"{XHTML_NS}p"
 
@@ -92,6 +93,7 @@ def scan_file(path: Path) -> dict:
 
 
 def main() -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     chapter_paths = load_paths()
     per_file = [scan_file(path) for path in chapter_paths]
 

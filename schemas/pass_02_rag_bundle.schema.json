@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "book_id": {
+      "type": "string"
+    },
+    "chapters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "chapter_id": {
+            "type": "string"
+          },
+          "chapter_order": {
+            "type": "integer"
+          },
+          "source_file": {
+            "type": "string"
+          },
+          "chapter_type": {
+            "type": "string",
+            "enum": [
+              "prologue",
+              "chapter"
+            ]
+          },
+          "chapter_number": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "chapter_title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "chapter_kind": {
+            "type": "string",
+            "enum": [
+              "narrative",
+              "background",
+              "analysis",
+              "reflection",
+              "conclusion",
+              "appendix",
+              "mixed",
+              "other"
+            ]
+          },
+          "summary_short": {
+            "type": "string"
+          },
+          "summary_detailed": {
+            "type": "string"
+          },
+          "summary_confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "themes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "key_events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/key_event"
+            }
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/entity"
+            }
+          },
+          "time_markers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/time_marker"
+            }
+          },
+          "important_quotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/quote_item"
+            }
+          },
+          "open_loops": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "chapter_keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ambiguities_or_gaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "chunks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/chunk"
+            }
+          }
+        },
+        "required": [
+          "chapter_id",
+          "chapter_order",
+          "source_file",
+          "chapter_type",
+          "chapter_number",
+          "chapter_title",
+          "chapter_kind",
+          "summary_short",
+          "summary_detailed",
+          "summary_confidence",
+          "themes",
+          "key_events",
+          "entities",
+          "time_markers",
+          "important_quotes",
+          "open_loops",
+          "chapter_keywords",
+          "ambiguities_or_gaps",
+          "chunks"
+        ]
+      }
+    }
+  },
+  "required": [
+    "book_id",
+    "chapters"
+  ],
+  "$defs": {
+    "key_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sequence": {
+          "type": "integer"
+        },
+        "event_summary": {
+          "type": "string"
+        },
+        "importance": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "involved_entities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "consequences": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "sequence",
+        "event_summary",
+        "importance",
+        "involved_entities",
+        "consequences"
+      ]
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "canonical_name": {
+          "type": "string"
+        },
+        "entity_type": {
+          "type": "string",
+          "enum": [
+            "person",
+            "organization",
+            "place",
+            "work",
+            "event",
+            "concept",
+            "other"
+          ]
+        },
+        "role_in_chapter": {
+          "type": "string"
+        },
+        "salience": {
+          "type": "string",
+          "enum": [
+            "minor",
+            "secondary",
+            "major"
+          ]
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "canonical_name",
+        "entity_type",
+        "role_in_chapter",
+        "salience",
+        "aliases"
+      ]
+    },
+    "time_marker": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "normalized": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "certainty": {
+          "type": "string",
+          "enum": [
+            "explicit",
+            "inferred"
+          ]
+        },
+        "related_event": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "normalized",
+        "certainty",
+        "related_event"
+      ]
+    },
+    "quote_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "speaker_or_source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "why_it_matters": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "speaker_or_source",
+        "text",
+        "why_it_matters"
+      ]
+    },
+    "chunk": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "chunk_id": {
+          "type": "string"
+        },
+        "chunk_order": {
+          "type": "integer"
+        },
+        "source_paragraph_start": {
+          "type": "integer"
+        },
+        "source_paragraph_end": {
+          "type": "integer"
+        },
+        "chunk_text_source": {
+          "type": "string"
+        },
+        "chunk_text_us_plain": {
+          "type": "string"
+        },
+        "chunk_kind": {
+          "type": "string",
+          "enum": [
+            "narrative",
+            "analysis",
+            "quote",
+            "context",
+            "other"
+          ]
+        },
+        "entities_mentioned": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "time_markers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rewrite_quality": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "review"
+          ]
+        },
+        "fidelity_notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "chunk_id",
+        "chunk_order",
+        "source_paragraph_start",
+        "source_paragraph_end",
+        "chunk_text_source",
+        "chunk_text_us_plain",
+        "chunk_kind",
+        "entities_mentioned",
+        "aliases",
+        "time_markers",
+        "rewrite_quality",
+        "fidelity_notes"
+      ]
+    }
+  }
+}
