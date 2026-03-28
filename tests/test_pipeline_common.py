@@ -1,6 +1,7 @@
 import sys
 import tempfile
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -191,6 +192,43 @@ class PipelineCommonTests(unittest.TestCase):
 
         self.assertNotEqual(base_key, changed_prompt_key)
         self.assertNotEqual(base_key, changed_schema_key)
+
+    def test_get_openai_client_delegates_to_openai_utils(self) -> None:
+        sentinel_client = object()
+        with patch.object(
+            pipeline_common, "get_openai_client", return_value=sentinel_client
+        ) as get_client_mock:
+            client = pipeline_common._get_openai_client()
+        self.assertIs(client, sentinel_client)
+        get_client_mock.assert_called_once()
+
+    def test_call_openai_once_uses_structured_output_contract(self) -> None:
+        fake_response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content='{"a": 1}'))]
+        )
+        create_mock = unittest.mock.Mock(return_value=fake_response)
+        fake_client = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=create_mock))
+        )
+
+        with patch.object(
+            pipeline_common, "_get_openai_client", return_value=fake_client
+        ):
+            result = pipeline_common._call_openai_once(
+                model="gpt-5-mini",
+                system_prompt="system",
+                user_prompt="user",
+                schema_name="simple_schema",
+                schema=SIMPLE_SCHEMA,
+                timeout_seconds=240,
+            )
+
+        self.assertEqual(result, {"a": 1})
+        create_kwargs = create_mock.call_args.kwargs
+        self.assertEqual(create_kwargs["model"], "gpt-5-mini")
+        self.assertEqual(create_kwargs["timeout"], 240)
+        self.assertEqual(create_kwargs["response_format"]["type"], "json_schema")
+        self.assertTrue(create_kwargs["response_format"]["json_schema"]["strict"])
 
 
 if __name__ == "__main__":

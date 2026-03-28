@@ -1,11 +1,11 @@
 import hashlib
 import json
-import os
+import sys
 from pathlib import Path
 from typing import Any
 
 from jsonschema import ValidationError, validate
-from openai import APIConnectionError, APITimeoutError, OpenAI
+from openai import APIConnectionError, APITimeoutError
 from tenacity import (
     Retrying,
     retry_if_exception_type,
@@ -16,6 +16,11 @@ from tenacity import (
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 CACHE_DIR = ROOT_DIR / ".cache" / "openai_structured"
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from openai_utils import get_openai_client
 
 
 class SchemaValidationError(Exception):
@@ -88,11 +93,8 @@ def save_cached_response(cache_key: str, value: Any) -> None:
     write_json(_cache_path(cache_key), value)
 
 
-def _get_openai_client() -> OpenAI:
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is required.")
-    return OpenAI(api_key=api_key)
+def _get_openai_client():
+    return get_openai_client()
 
 
 def _call_openai_once(
