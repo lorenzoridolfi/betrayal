@@ -3,6 +3,14 @@ import copy
 import json
 from pathlib import Path
 
+from pipeline_params import (
+    DATA_DIR,
+    MODEL_DEFAULT,
+    PASS_02_SCHEMA_FILE,
+    TIMEOUT_SECONDS_DEFAULT,
+    get_profile,
+    list_profiles,
+)
 from pipeline_common import (
     chapter_id_from_order,
     call_openai_structured_cached,
@@ -14,12 +22,6 @@ from pipeline_common import (
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = ROOT_DIR / "data"
-BOOK_FILE = DATA_DIR / "betrayal.json"
-CLASSIFICATION_FILE = DATA_DIR / "pass_01_chapter_classification.json"
-OUTPUT_FILE = DATA_DIR / "rag_ingest_bundle.json"
-SCHEMA_FILE = ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json"
-MODEL_DEFAULT = "gpt-5-mini"
 
 
 SYSTEM_PROMPT = (
@@ -47,11 +49,28 @@ def build_user_prompt(chapter_payload: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=MODEL_DEFAULT)
-    parser.add_argument("--timeout-seconds", type=int, default=240)
+    parser.add_argument("--timeout-seconds", type=int, default=TIMEOUT_SECONDS_DEFAULT)
+    parser.add_argument("--profile", choices=list_profiles(), default="full")
+    parser.add_argument("--book-file", default=None)
+    parser.add_argument("--classification-file", default=None)
+    parser.add_argument("--output-file", default=None)
     args = parser.parse_args()
 
+    profile = get_profile(args.profile)
+    book_file = Path(args.book_file) if args.book_file else profile["book_file"]
+    default_classification = profile["pass_01_output"]
+    classification_file = (
+        Path(args.classification_file)
+        if args.classification_file
+        else default_classification
+    )
+    output_file = (
+        Path(args.output_file) if args.output_file else profile["pass_02_output"]
+    )
+    chapter_limit = profile["chapter_limit"]
+
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    output_schema = load_schema(SCHEMA_FILE)
+    output_schema = load_schema(PASS_02_SCHEMA_FILE)
     chapter_item_schema = output_schema["properties"]["chapters"]["items"]
     chapter_item_schema_with_defs = {
         "$defs": output_schema.get("$defs", {}),
@@ -72,10 +91,12 @@ def main() -> None:
         }
     ]
 
-    book_data = read_json(BOOK_FILE)
-    classification_data = read_json(CLASSIFICATION_FILE)
+    book_data = read_json(book_file)
+    classification_data = read_json(classification_file)
 
     examples = book_data.get("examples", [])
+    if chapter_limit is not None:
+        examples = examples[:chapter_limit]
     preliminary = {
         item["chapter_id"]: item for item in classification_data.get("chapters", [])
     }
@@ -137,8 +158,8 @@ def main() -> None:
         "chapters": chapters_out,
     }
     validate_with_schema(output_data, output_schema)
-    write_json(OUTPUT_FILE, output_data)
-    print(f"Wrote {OUTPUT_FILE.name} with {len(chapters_out)} chapters.")
+    write_json(output_file, output_data)
+    print(f"Wrote {output_file.name} with {len(chapters_out)} chapters.")
 
 
 if __name__ == "__main__":

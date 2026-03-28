@@ -131,6 +131,28 @@ def _valid_pass_02_item(
 
 
 class Pass02Tests(unittest.TestCase):
+    def _run_pass_02(
+        self,
+        *,
+        book_file: Path,
+        classification_file: Path,
+        output_file: Path,
+        profile: str = "full",
+    ) -> None:
+        argv = [
+            "pass_02_extract_and_bundle.py",
+            "--profile",
+            profile,
+            "--book-file",
+            str(book_file),
+            "--classification-file",
+            str(classification_file),
+            "--output-file",
+            str(output_file),
+        ]
+        with patch.object(sys, "argv", argv):
+            pass_02.main()
+
     def test_writes_bundle_for_one_chapter(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
@@ -141,23 +163,18 @@ class Pass02Tests(unittest.TestCase):
             _write_json(class_file, _preliminary_data(1))
 
             with (
-                patch.object(pass_02, "BOOK_FILE", book_file),
-                patch.object(pass_02, "CLASSIFICATION_FILE", class_file),
-                patch.object(pass_02, "OUTPUT_FILE", output_file),
                 patch.object(pass_02, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_02,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json",
-                ),
                 patch.object(
                     pass_02,
                     "call_openai_structured_cached",
                     return_value=_valid_pass_02_item("betrayal-001", 1, 1),
                 ) as llm_mock,
-                patch.object(sys, "argv", ["pass_02_extract_and_bundle.py"]),
             ):
-                pass_02.main()
+                self._run_pass_02(
+                    book_file=book_file,
+                    classification_file=class_file,
+                    output_file=output_file,
+                )
 
             self.assertTrue(output_file.exists())
             data = json.loads(output_file.read_text(encoding="utf-8"))
@@ -179,19 +196,14 @@ class Pass02Tests(unittest.TestCase):
             _write_json(class_file, {"book_id": "betrayal", "chapters": []})
 
             with (
-                patch.object(pass_02, "BOOK_FILE", book_file),
-                patch.object(pass_02, "CLASSIFICATION_FILE", class_file),
-                patch.object(pass_02, "OUTPUT_FILE", output_file),
                 patch.object(pass_02, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_02,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json",
-                ),
-                patch.object(sys, "argv", ["pass_02_extract_and_bundle.py"]),
             ):
                 with self.assertRaises(ValueError):
-                    pass_02.main()
+                    self._run_pass_02(
+                        book_file=book_file,
+                        classification_file=class_file,
+                        output_file=output_file,
+                    )
 
     def test_passes_preliminary_context_to_llm_payload(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -204,23 +216,18 @@ class Pass02Tests(unittest.TestCase):
             _write_json(class_file, preliminary)
 
             with (
-                patch.object(pass_02, "BOOK_FILE", book_file),
-                patch.object(pass_02, "CLASSIFICATION_FILE", class_file),
-                patch.object(pass_02, "OUTPUT_FILE", output_file),
                 patch.object(pass_02, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_02,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json",
-                ),
                 patch.object(
                     pass_02,
                     "call_openai_structured_cached",
                     return_value=_valid_pass_02_item("betrayal-001", 1, 1),
                 ) as llm_mock,
-                patch.object(sys, "argv", ["pass_02_extract_and_bundle.py"]),
             ):
-                pass_02.main()
+                self._run_pass_02(
+                    book_file=book_file,
+                    classification_file=class_file,
+                    output_file=output_file,
+                )
 
             call_kwargs = llm_mock.call_args.kwargs
             self.assertIn("preliminary", call_kwargs["input_payload"])
@@ -239,15 +246,7 @@ class Pass02Tests(unittest.TestCase):
             _write_json(class_file, _preliminary_data(2))
 
             with (
-                patch.object(pass_02, "BOOK_FILE", book_file),
-                patch.object(pass_02, "CLASSIFICATION_FILE", class_file),
-                patch.object(pass_02, "OUTPUT_FILE", output_file),
                 patch.object(pass_02, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_02,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json",
-                ),
                 patch.object(
                     pass_02,
                     "call_openai_structured_cached",
@@ -256,9 +255,12 @@ class Pass02Tests(unittest.TestCase):
                         _valid_pass_02_item("betrayal-002", 2, 2),
                     ],
                 ) as llm_mock,
-                patch.object(sys, "argv", ["pass_02_extract_and_bundle.py"]),
             ):
-                pass_02.main()
+                self._run_pass_02(
+                    book_file=book_file,
+                    classification_file=class_file,
+                    output_file=output_file,
+                )
 
             self.assertEqual(llm_mock.call_count, 2)
 
@@ -272,24 +274,19 @@ class Pass02Tests(unittest.TestCase):
             _write_json(class_file, _preliminary_data(1))
 
             with (
-                patch.object(pass_02, "BOOK_FILE", book_file),
-                patch.object(pass_02, "CLASSIFICATION_FILE", class_file),
-                patch.object(pass_02, "OUTPUT_FILE", output_file),
                 patch.object(pass_02, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_02,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json",
-                ),
                 patch.object(
                     pass_02,
                     "call_openai_structured_cached",
                     return_value={"bad": "payload"},
                 ),
-                patch.object(sys, "argv", ["pass_02_extract_and_bundle.py"]),
             ):
                 with self.assertRaises(Exception):
-                    pass_02.main()
+                    self._run_pass_02(
+                        book_file=book_file,
+                        classification_file=class_file,
+                        output_file=output_file,
+                    )
 
     def test_marks_chapter_kind_changed_when_final_differs(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -304,23 +301,18 @@ class Pass02Tests(unittest.TestCase):
             llm_item["chapter_kind"] = "analysis"
 
             with (
-                patch.object(pass_02, "BOOK_FILE", book_file),
-                patch.object(pass_02, "CLASSIFICATION_FILE", class_file),
-                patch.object(pass_02, "OUTPUT_FILE", output_file),
                 patch.object(pass_02, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_02,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_02_rag_bundle.schema.json",
-                ),
                 patch.object(
                     pass_02,
                     "call_openai_structured_cached",
                     return_value=llm_item,
                 ),
-                patch.object(sys, "argv", ["pass_02_extract_and_bundle.py"]),
             ):
-                pass_02.main()
+                self._run_pass_02(
+                    book_file=book_file,
+                    classification_file=class_file,
+                    output_file=output_file,
+                )
 
             data = json.loads(output_file.read_text(encoding="utf-8"))
             out_item = data["chapters"][0]
@@ -328,6 +320,39 @@ class Pass02Tests(unittest.TestCase):
             self.assertEqual(out_item["chapter_kind"], "analysis")
             self.assertTrue(out_item["chapter_kind_changed"])
             self.assertTrue(out_item["chapter_kind_change_rationale"])
+
+    def test_preview_profile_limits_to_two_chapters(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            book_file = temp_path / "data" / "betrayal.json"
+            class_file = (
+                temp_path / "data" / "pass_01_chapter_classification_preview.json"
+            )
+            output_file = temp_path / "data" / "rag_ingest_bundle_preview.json"
+            _write_json(book_file, _book_data(3))
+            _write_json(class_file, _preliminary_data(3))
+
+            with (
+                patch.object(pass_02, "DATA_DIR", temp_path / "data"),
+                patch.object(
+                    pass_02,
+                    "call_openai_structured_cached",
+                    side_effect=[
+                        _valid_pass_02_item("betrayal-001", 1, 1),
+                        _valid_pass_02_item("betrayal-002", 2, 2),
+                    ],
+                ) as llm_mock,
+            ):
+                self._run_pass_02(
+                    book_file=book_file,
+                    classification_file=class_file,
+                    output_file=output_file,
+                    profile="preview",
+                )
+
+            self.assertEqual(llm_mock.call_count, 2)
+            data = json.loads(output_file.read_text(encoding="utf-8"))
+            self.assertEqual(len(data["chapters"]), 2)
 
 
 if __name__ == "__main__":

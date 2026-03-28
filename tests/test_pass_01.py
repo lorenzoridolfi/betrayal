@@ -57,6 +57,25 @@ def _valid_pass_01_item(
 
 
 class Pass01Tests(unittest.TestCase):
+    def _run_pass_01(
+        self,
+        *,
+        input_file: Path,
+        output_file: Path,
+        profile: str = "full",
+    ) -> None:
+        argv = [
+            "pass_01_classify_chapters.py",
+            "--profile",
+            profile,
+            "--input-file",
+            str(input_file),
+            "--output-file",
+            str(output_file),
+        ]
+        with patch.object(sys, "argv", argv):
+            pass_01.main()
+
     def test_writes_valid_output_for_one_chapter(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
@@ -65,22 +84,14 @@ class Pass01Tests(unittest.TestCase):
             _write_json(input_file, _build_input(1))
 
             with (
-                patch.object(pass_01, "INPUT_FILE", input_file),
-                patch.object(pass_01, "OUTPUT_FILE", output_file),
                 patch.object(pass_01, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_01,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_01_chapter_classification.schema.json",
-                ),
                 patch.object(
                     pass_01,
                     "call_openai_structured_cached",
                     return_value=_valid_pass_01_item("betrayal-001", 1, 1),
                 ) as llm_mock,
-                patch.object(sys, "argv", ["pass_01_classify_chapters.py"]),
             ):
-                pass_01.main()
+                self._run_pass_01(input_file=input_file, output_file=output_file)
 
             self.assertTrue(output_file.exists())
             data = json.loads(output_file.read_text(encoding="utf-8"))
@@ -102,20 +113,12 @@ class Pass01Tests(unittest.TestCase):
             ]
 
             with (
-                patch.object(pass_01, "INPUT_FILE", input_file),
-                patch.object(pass_01, "OUTPUT_FILE", output_file),
                 patch.object(pass_01, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_01,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_01_chapter_classification.schema.json",
-                ),
                 patch.object(
                     pass_01, "call_openai_structured_cached", side_effect=side_effect
                 ) as llm_mock,
-                patch.object(sys, "argv", ["pass_01_classify_chapters.py"]),
             ):
-                pass_01.main()
+                self._run_pass_01(input_file=input_file, output_file=output_file)
 
             self.assertEqual(llm_mock.call_count, 2)
 
@@ -127,23 +130,15 @@ class Pass01Tests(unittest.TestCase):
             _write_json(input_file, _build_input(1))
 
             with (
-                patch.object(pass_01, "INPUT_FILE", input_file),
-                patch.object(pass_01, "OUTPUT_FILE", output_file),
                 patch.object(pass_01, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_01,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_01_chapter_classification.schema.json",
-                ),
                 patch.object(
                     pass_01,
                     "call_openai_structured_cached",
                     return_value={"bad": "payload"},
                 ),
-                patch.object(sys, "argv", ["pass_01_classify_chapters.py"]),
             ):
                 with self.assertRaises(Exception):
-                    pass_01.main()
+                    self._run_pass_01(input_file=input_file, output_file=output_file)
 
     def test_handles_empty_examples_without_llm_calls(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -153,18 +148,10 @@ class Pass01Tests(unittest.TestCase):
             _write_json(input_file, {"examples": []})
 
             with (
-                patch.object(pass_01, "INPUT_FILE", input_file),
-                patch.object(pass_01, "OUTPUT_FILE", output_file),
                 patch.object(pass_01, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_01,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_01_chapter_classification.schema.json",
-                ),
                 patch.object(pass_01, "call_openai_structured_cached") as llm_mock,
-                patch.object(sys, "argv", ["pass_01_classify_chapters.py"]),
             ):
-                pass_01.main()
+                self._run_pass_01(input_file=input_file, output_file=output_file)
 
             self.assertEqual(llm_mock.call_count, 0)
             data = json.loads(output_file.read_text(encoding="utf-8"))
@@ -178,22 +165,14 @@ class Pass01Tests(unittest.TestCase):
             _write_json(input_file, _build_input(1))
 
             with (
-                patch.object(pass_01, "INPUT_FILE", input_file),
-                patch.object(pass_01, "OUTPUT_FILE", output_file),
                 patch.object(pass_01, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_01,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_01_chapter_classification.schema.json",
-                ),
                 patch.object(
                     pass_01,
                     "call_openai_structured_cached",
                     return_value=_valid_pass_01_item("betrayal-001", 1, 1),
                 ) as llm_mock,
-                patch.object(sys, "argv", ["pass_01_classify_chapters.py"]),
             ):
-                pass_01.main()
+                self._run_pass_01(input_file=input_file, output_file=output_file)
 
             payload = llm_mock.call_args.kwargs["input_payload"]
             self.assertEqual(payload["chapter_id"], "betrayal-001")
@@ -211,27 +190,49 @@ class Pass01Tests(unittest.TestCase):
             llm_item["classification_confidence"] = "medium"
 
             with (
-                patch.object(pass_01, "INPUT_FILE", input_file),
-                patch.object(pass_01, "OUTPUT_FILE", output_file),
                 patch.object(pass_01, "DATA_DIR", temp_path / "data"),
-                patch.object(
-                    pass_01,
-                    "SCHEMA_FILE",
-                    ROOT_DIR / "schemas" / "pass_01_chapter_classification.schema.json",
-                ),
                 patch.object(
                     pass_01,
                     "call_openai_structured_cached",
                     return_value=llm_item,
                 ),
-                patch.object(sys, "argv", ["pass_01_classify_chapters.py"]),
             ):
-                pass_01.main()
+                self._run_pass_01(input_file=input_file, output_file=output_file)
 
             data = json.loads(output_file.read_text(encoding="utf-8"))
             out_item = data["chapters"][0]
             self.assertEqual(out_item["chapter_kind_preliminary"], "analysis")
             self.assertEqual(out_item["classification_confidence"], "medium")
+
+    def test_preview_profile_limits_to_two_chapters(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            input_file = temp_path / "data" / "betrayal.json"
+            output_file = (
+                temp_path / "data" / "pass_01_chapter_classification_preview.json"
+            )
+            _write_json(input_file, _build_input(3))
+
+            with (
+                patch.object(pass_01, "DATA_DIR", temp_path / "data"),
+                patch.object(
+                    pass_01,
+                    "call_openai_structured_cached",
+                    side_effect=[
+                        _valid_pass_01_item("betrayal-001", 1, 1),
+                        _valid_pass_01_item("betrayal-002", 2, 2),
+                    ],
+                ) as llm_mock,
+            ):
+                self._run_pass_01(
+                    input_file=input_file,
+                    output_file=output_file,
+                    profile="preview",
+                )
+
+            self.assertEqual(llm_mock.call_count, 2)
+            data = json.loads(output_file.read_text(encoding="utf-8"))
+            self.assertEqual(len(data["chapters"]), 2)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,14 @@ import argparse
 import json
 from pathlib import Path
 
+from pipeline_params import (
+    DATA_DIR,
+    MODEL_DEFAULT,
+    PASS_01_SCHEMA_FILE,
+    TIMEOUT_SECONDS_DEFAULT,
+    get_profile,
+    list_profiles,
+)
 from pipeline_common import (
     chapter_id_from_order,
     call_openai_structured_cached,
@@ -13,11 +21,6 @@ from pipeline_common import (
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = ROOT_DIR / "data"
-INPUT_FILE = DATA_DIR / "betrayal.json"
-OUTPUT_FILE = DATA_DIR / "pass_01_chapter_classification.json"
-SCHEMA_FILE = ROOT_DIR / "schemas" / "pass_01_chapter_classification.schema.json"
-MODEL_DEFAULT = "gpt-5-mini"
 
 
 SYSTEM_PROMPT = (
@@ -41,15 +44,27 @@ def build_user_prompt(chapter_payload: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=MODEL_DEFAULT)
-    parser.add_argument("--timeout-seconds", type=int, default=240)
+    parser.add_argument("--timeout-seconds", type=int, default=TIMEOUT_SECONDS_DEFAULT)
+    parser.add_argument("--profile", choices=list_profiles(), default="full")
+    parser.add_argument("--input-file", default=None)
+    parser.add_argument("--output-file", default=None)
     args = parser.parse_args()
 
-    schema = load_schema(SCHEMA_FILE)
+    profile = get_profile(args.profile)
+    input_file = Path(args.input_file) if args.input_file else profile["book_file"]
+    output_file = (
+        Path(args.output_file) if args.output_file else profile["pass_01_output"]
+    )
+    chapter_limit = profile["chapter_limit"]
+
+    schema = load_schema(PASS_01_SCHEMA_FILE)
     chapter_item_schema = schema["properties"]["chapters"]["items"]
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    input_data = read_json(INPUT_FILE)
+    input_data = read_json(input_file)
     examples = input_data.get("examples", [])
+    if chapter_limit is not None:
+        examples = examples[:chapter_limit]
 
     chapters_out = []
     for index, chapter in enumerate(examples, start=1):
@@ -85,8 +100,8 @@ def main() -> None:
         "chapters": chapters_out,
     }
     validate_with_schema(output_data, schema)
-    write_json(OUTPUT_FILE, output_data)
-    print(f"Wrote {OUTPUT_FILE.name} with {len(chapters_out)} chapters.")
+    write_json(output_file, output_data)
+    print(f"Wrote {output_file.name} with {len(chapters_out)} chapters.")
 
 
 if __name__ == "__main__":
