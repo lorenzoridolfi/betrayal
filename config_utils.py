@@ -6,9 +6,10 @@ schema, data, and output files relative to the project root directory.
 
 from pathlib import Path
 
-_current_path = Path(__file__).resolve()
+from project_paths import DATA_DIR, ROOT_DIR
 
-ROOT_FOLDER = _current_path.parent
+ROOT_FOLDER = ROOT_DIR
+SYNTHETIC_USER_DIR = DATA_DIR / "synthetic_user"
 
 
 def get_config_path(filename: str) -> Path:
@@ -50,7 +51,7 @@ def get_schema_path(filename: str) -> Path:
     >>> get_schema_path('user_profile.json')
     PosixPath('/path/to/project/data/synthetic_user/schema/user_profile.json')
     """
-    return ROOT_FOLDER / "data" / "synthetic_user" / "schema" / filename
+    return SYNTHETIC_USER_DIR / "schema" / filename
 
 
 def get_data_path(filename: str) -> Path:
@@ -71,7 +72,7 @@ def get_data_path(filename: str) -> Path:
     >>> get_data_path('segments.json')
     PosixPath('/path/to/project/data/synthetic_user/input/segments.json')
     """
-    return ROOT_FOLDER / "data" / "synthetic_user" / "input" / filename
+    return SYNTHETIC_USER_DIR / "input" / filename
 
 
 def get_output_path(filename: str) -> Path:
@@ -92,7 +93,7 @@ def get_output_path(filename: str) -> Path:
     >>> get_output_path('results.json')
     PosixPath('/path/to/project/data/synthetic_user/output/results.json')
     """
-    return ROOT_FOLDER / "data" / "synthetic_user" / "output" / filename
+    return SYNTHETIC_USER_DIR / "output" / filename
 
 
 def get_db_path(filename: str) -> Path:
@@ -113,4 +114,4 @@ def get_db_path(filename: str) -> Path:
     >>> get_db_path('jobs.db')
     PosixPath('/path/to/project/data/synthetic_user/db/jobs.db')
     """
-    return ROOT_FOLDER / "data" / "synthetic_user" / "db" / filename
+    return SYNTHETIC_USER_DIR / "db" / filename

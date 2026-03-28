@@ -1,29 +1,39 @@
+"""Run pass 01 and pass 02 sequentially for a selected profile."""
+
 import subprocess
 import sys
 from pathlib import Path
 
+from pipeline_params import (
+    PASS_01_SCRIPT,
+    PASS_02_SCRIPT,
+    PROFILE_DEFAULT,
+    PROFILE_CHOICES,
+)
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
-PASS_01_SCRIPT = ROOT_DIR / "ingest" / "pass_01_classify_chapters.py"
-PASS_02_SCRIPT = ROOT_DIR / "ingest" / "pass_02_extract_and_bundle.py"
-VALID_PROFILES = {"full", "preview"}
+
+VALID_PROFILES = set(PROFILE_CHOICES)
 
 
 def resolve_profile(argv: list[str]) -> str:
+    """Parse the optional profile arg and fail fast on invalid values."""
     if len(argv) <= 1:
-        return "full"
+        return PROFILE_DEFAULT
     profile = argv[1].strip().lower()
     if profile not in VALID_PROFILES:
-        raise ValueError("Profile must be 'full' or 'preview'.")
+        allowed = " or ".join(f"'{name}'" for name in PROFILE_CHOICES)
+        raise ValueError(f"Profile must be {allowed}.")
     return profile
 
 
 def run_script(script_path: Path, profile: str) -> None:
+    """Execute one ingest script with the selected profile."""
     command = [sys.executable, str(script_path), "--profile", profile]
     subprocess.run(command, check=True)
 
 
 def main() -> None:
+    """Run both ingest passes for the resolved profile."""
     try:
         profile = resolve_profile(sys.argv)
     except ValueError as error:

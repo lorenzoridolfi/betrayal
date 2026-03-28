@@ -1,14 +1,17 @@
+"""Pass 02: extract structured chapter data and build the ingest bundle."""
+
 import argparse
-import copy
 import json
 from pathlib import Path
 
 from pipeline_params import (
     DATA_DIR,
     MODEL_DEFAULT,
+    PASS_02_ITEM_SCHEMA_FILE,
     PASS_02_SCHEMA_FILE,
     PASS_02_SYSTEM_PROMPT_FILE,
     PASS_02_USER_PROMPT_TEMPLATE_FILE,
+    PROFILE_DEFAULT,
     TIMEOUT_SECONDS_DEFAULT,
     get_profile,
     list_profiles,
@@ -26,6 +29,7 @@ from pipeline_common import (
 
 
 def build_user_prompt(chapter_payload: dict) -> str:
+    """Render the pass-02 user prompt from the chapter payload."""
     return render_prompt_template(
         PASS_02_USER_PROMPT_TEMPLATE_FILE,
         {"chapter_payload_json": json.dumps(chapter_payload, ensure_ascii=False)},
@@ -33,10 +37,11 @@ def build_user_prompt(chapter_payload: dict) -> str:
 
 
 def main() -> None:
+    """Run pass 02 for the selected profile and write validated output."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default=MODEL_DEFAULT)
     parser.add_argument("--timeout-seconds", type=int, default=TIMEOUT_SECONDS_DEFAULT)
-    parser.add_argument("--profile", choices=list_profiles(), default="full")
+    parser.add_argument("--profile", choices=list_profiles(), default=PROFILE_DEFAULT)
     parser.add_argument("--book-file", default=None)
     parser.add_argument("--classification-file", default=None)
     parser.add_argument("--output-file", default=None)
@@ -58,25 +63,7 @@ def main() -> None:
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     output_schema = load_schema(PASS_02_SCHEMA_FILE)
-    chapter_item_schema = output_schema["properties"]["chapters"]["items"]
-    chapter_item_schema_with_defs = {
-        "$defs": output_schema.get("$defs", {}),
-        **chapter_item_schema,
-    }
-    llm_chapter_schema = copy.deepcopy(chapter_item_schema_with_defs)
-    llm_chapter_schema["properties"].pop("chapter_kind_preliminary", None)
-    llm_chapter_schema["properties"].pop("chapter_kind_changed", None)
-    llm_chapter_schema["properties"].pop("chapter_kind_change_rationale", None)
-    llm_chapter_schema["required"] = [
-        field
-        for field in llm_chapter_schema["required"]
-        if field
-        not in {
-            "chapter_kind_preliminary",
-            "chapter_kind_changed",
-            "chapter_kind_change_rationale",
-        }
-    ]
+    llm_chapter_schema = load_schema(PASS_02_ITEM_SCHEMA_FILE)
 
     book_data = read_json(book_file)
     classification_data = read_json(classification_file)
@@ -119,6 +106,7 @@ def main() -> None:
             input_payload=chapter_payload,
             timeout_seconds=args.timeout_seconds,
         )
+        validate_with_schema(chapter_result, llm_chapter_schema)
 
         chapter_result["chapter_kind_preliminary"] = prelim_item[
             "chapter_kind_preliminary"
@@ -137,7 +125,10 @@ def main() -> None:
                     "No change was needed because the preliminary and final chapter kinds match."
                 )
 
-        validate_with_schema(chapter_result, chapter_item_schema_with_defs)
+        validate_with_schema(
+            {"book_id": "betrayal", "chapters": [chapter_result]},
+            output_schema,
+        )
         chapters_out.append(chapter_result)
 
     output_data = {

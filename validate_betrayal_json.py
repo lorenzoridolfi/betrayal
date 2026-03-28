@@ -1,11 +1,11 @@
+"""Validate `data/betrayal.json` structure and compute token totals."""
+
 import json
-from pathlib import Path
 
 import tiktoken
+from project_paths import DATA_DIR
 
 
-ROOT_DIR = Path(__file__).resolve().parent
-DATA_DIR = ROOT_DIR / "data"
 INPUT_FILE = DATA_DIR / "betrayal.json"
 REPORT_FILE = DATA_DIR / "betrayal_validation_report.json"
 EXPECTED_KEYS = {
@@ -19,12 +19,14 @@ EXPECTED_KEYS = {
 
 
 def count_tokens(text: str, encoder: tiktoken.Encoding) -> int:
+    """Count tokens using the provided tokenizer encoder."""
     if not text:
         return 0
     return len(encoder.encode(text))
 
 
 def validate_and_count(data: dict) -> dict:
+    """Validate chapter payload shape and return per-chapter diagnostics."""
     encoder = tiktoken.get_encoding("cl100k_base")
 
     global_errors: list[str] = []
@@ -161,6 +163,7 @@ def validate_and_count(data: dict) -> dict:
 
 
 def main() -> None:
+    """Run validation and write report to `data/betrayal_validation_report.json`."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     with INPUT_FILE.open("r", encoding="utf-8") as file:
         data = json.load(file)

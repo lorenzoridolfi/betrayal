@@ -1,3 +1,5 @@
+"""Shared helpers for schema validation, prompt rendering, and OpenAI calls."""
+
 import hashlib
 import json
 import sys
@@ -6,7 +8,6 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from jsonschema import ValidationError, validate
-from openai import APIConnectionError, APITimeoutError
 from tenacity import (
     Retrying,
     retry_if_exception_type,
@@ -21,24 +22,29 @@ CACHE_DIR = ROOT_DIR / ".cache" / "openai_structured"
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from openai_utils import get_openai_client
+from openai_utils import get_openai_client, get_openai_retryable_exceptions
 
 
 class SchemaValidationError(Exception):
+    """Raised when model output fails strict schema validation."""
+
     pass
 
 
 def read_json(path: Path) -> Any:
+    """Read JSON from disk and return the decoded value."""
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
 
 
 def read_text_file(path: Path) -> str:
+    """Read a UTF-8 text file and trim outer whitespace."""
     with path.open("r", encoding="utf-8") as file:
         return file.read().strip()
 
 
 def render_prompt_template(template_path: Path, context: dict[str, Any]) -> str:
+    """Render a Jinja template with strict undefined handling."""
     environment = Environment(
         loader=FileSystemLoader(str(template_path.parent)),
         undefined=StrictUndefined,
@@ -49,28 +55,34 @@ def render_prompt_template(template_path: Path, context: dict[str, Any]) -> str:
 
 
 def write_json(path: Path, data: Any) -> None:
+    """Write JSON to disk with UTF-8 and stable indentation."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
 
 
 def load_schema(path: Path) -> dict[str, Any]:
+    """Load and return a JSON schema document from disk."""
     return read_json(path)
 
 
 def validate_with_schema(data: Any, schema: dict[str, Any]) -> None:
+    """Validate data against JSON schema and raise on mismatch."""
     validate(instance=data, schema=schema)
 
 
 def chapter_id_from_order(chapter_order: int) -> str:
+    """Build a stable chapter identifier from a 1-based order."""
     return f"betrayal-{chapter_order:03d}"
 
 
 def chunk_id_from_order(chapter_id: str, chunk_order: int) -> str:
+    """Build a stable chunk identifier from chapter and chunk order."""
     return f"{chapter_id}-chunk-{chunk_order:03d}"
 
 
 def hash_json(data: Any) -> str:
+    """Return a deterministic hash for any JSON-serializable value."""
     raw = json.dumps(data, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
@@ -83,6 +95,7 @@ def build_cache_key(
     schema: dict[str, Any],
     input_payload: Any,
 ) -> str:
+    """Create a cache key from model, prompts, schema, and input payload."""
     payload = {
         "model": model,
         "prompt": prompt,
@@ -94,10 +107,12 @@ def build_cache_key(
 
 
 def _cache_path(cache_key: str) -> Path:
+    """Return the cache file path for a given cache key."""
     return CACHE_DIR / f"{cache_key}.json"
 
 
 def load_cached_response(cache_key: str) -> Any | None:
+    """Load a cached model response if present."""
     path = _cache_path(cache_key)
     if not path.exists():
         return None
@@ -105,12 +120,23 @@ def load_cached_response(cache_key: str) -> Any | None:
 
 
 def save_cached_response(cache_key: str, value: Any) -> None:
+    """Persist a model response in the structured-output cache."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     write_json(_cache_path(cache_key), value)
 
 
-def _get_openai_client():
+def _get_openai_client() -> Any:
+    """Return a configured OpenAI client."""
     return get_openai_client()
+
+
+def _build_retryable_exception_tuple() -> tuple[type[BaseException], ...]:
+    """Build retryable exception tuple including OpenAI transport errors."""
+    return (
+        *get_openai_retryable_exceptions(),
+        TimeoutError,
+        SchemaValidationError,
+    )
 
 
 def _call_openai_once(
@@ -122,6 +148,7 @@ def _call_openai_once(
     schema: dict[str, Any],
     timeout_seconds: int,
 ) -> Any:
+    """Call OpenAI once using strict JSON schema response_format."""
     client = _get_openai_client()
     response = client.chat.completions.create(
         model=model,
@@ -163,6 +190,7 @@ def call_openai_structured_cached(
     timeout_seconds: int = 240,
     max_attempts: int = 3,
 ) -> Any:
+    """Call OpenAI with retries and cache the validated response."""
     cache_key = build_cache_key(
         model=model,
         prompt=f"{system_prompt}\n\n{user_prompt}",
@@ -177,9 +205,7 @@ def call_openai_structured_cached(
     retryer = Retrying(
         stop=stop_after_attempt(max_attempts),
         wait=wait_exponential(multiplier=1, min=1, max=16),
-        retry=retry_if_exception_type(
-            (APITimeoutError, APIConnectionError, TimeoutError, SchemaValidationError)
-        ),
+        retry=retry_if_exception_type(_build_retryable_exception_tuple()),
         reraise=True,
     )
 

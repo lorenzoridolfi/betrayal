@@ -1,12 +1,14 @@
+"""Build normalized `data/betrayal.json` from XHTML chapter files."""
+
 import json
 import re
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+from project_paths import DATA_DIR, ROOT_DIR
 
-ROOT_DIR = Path(__file__).resolve().parent
+
 CONTENTS_FILE = ROOT_DIR / "contents.txt"
-DATA_DIR = ROOT_DIR / "data"
 OUTPUT_FILE = DATA_DIR / "betrayal.json"
 XHTML_NS = "{http://www.w3.org/1999/xhtml}"
 P_TAG = f"{XHTML_NS}p"
@@ -16,10 +18,12 @@ SEPARATOR_PATTERN = re.compile(r"^\*\s*\*\s*\*$")
 
 
 def clean_text(text: str) -> str:
+    """Collapse repeated whitespace into single spaces."""
     return " ".join(text.split())
 
 
 def remove_sup_nodes(element: ET.Element) -> None:
+    """Remove `<sup>` nodes in place before text extraction."""
     for parent in element.iter():
         for child in list(parent):
             if child.tag == SUP_TAG:
@@ -27,6 +31,7 @@ def remove_sup_nodes(element: ET.Element) -> None:
 
 
 def remove_empty_span_nodes(element: ET.Element) -> None:
+    """Remove empty `<span>` nodes to avoid empty artifacts."""
     for parent in element.iter():
         for child in list(parent):
             if child.tag != SPAN_TAG:
@@ -36,6 +41,7 @@ def remove_empty_span_nodes(element: ET.Element) -> None:
 
 
 def paragraph_text_without_sup(paragraph: ET.Element) -> str:
+    """Return normalized paragraph text without footnote markup."""
     paragraph_copy = ET.fromstring(ET.tostring(paragraph, encoding="unicode"))
     remove_sup_nodes(paragraph_copy)
     remove_empty_span_nodes(paragraph_copy)
@@ -43,6 +49,7 @@ def paragraph_text_without_sup(paragraph: ET.Element) -> str:
 
 
 def extract_paragraphs(section: ET.Element) -> list[dict]:
+    """Extract numbered paragraph objects from one chapter section."""
     items = []
     for p in section.iter(P_TAG):
         if p.attrib.get("class") == "ct":
@@ -63,6 +70,7 @@ def extract_paragraphs(section: ET.Element) -> list[dict]:
 
 
 def parse_file(chapter_path: Path) -> dict:
+    """Parse one chapter XHTML file into normalized chapter payload."""
     tree = ET.parse(chapter_path)
     root = tree.getroot()
     section = root.find(f".//{XHTML_NS}section")
@@ -106,6 +114,7 @@ def parse_file(chapter_path: Path) -> dict:
 
 
 def load_paths(contents_file: Path) -> list[Path]:
+    """Load chapter-relative paths listed in `contents.txt`."""
     paths = []
     with contents_file.open("r", encoding="utf-8") as file:
         for raw_line in file:
@@ -117,6 +126,7 @@ def load_paths(contents_file: Path) -> list[Path]:
 
 
 def main() -> None:
+    """Generate `data/betrayal.json` from source chapter files."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     chapter_paths = load_paths(CONTENTS_FILE)
     examples = [parse_file(path) for path in chapter_paths]

@@ -1,27 +1,32 @@
+"""Scan XHTML paragraph inner tags and write a normalization report."""
+
 import json
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+from project_paths import DATA_DIR, ROOT_DIR
 
-ROOT_DIR = Path(__file__).resolve().parent
+
 CONTENTS_FILE = ROOT_DIR / "contents.txt"
-DATA_DIR = ROOT_DIR / "data"
 REPORT_FILE = DATA_DIR / "p_inner_tags_report.json"
 XHTML_NS = "{http://www.w3.org/1999/xhtml}"
 P_TAG = f"{XHTML_NS}p"
 
 
 def clean_text(text: str) -> str:
+    """Collapse repeated whitespace into single spaces."""
     return " ".join(text.split())
 
 
 def local_name(tag: str) -> str:
+    """Return XML local tag name without namespace prefix."""
     if "}" in tag:
         return tag.split("}", 1)[1]
     return tag
 
 
 def load_paths() -> list[Path]:
+    """Load chapter-relative paths listed in `contents.txt`."""
     paths = []
     with CONTENTS_FILE.open("r", encoding="utf-8") as file:
         for raw_line in file:
@@ -32,10 +37,12 @@ def load_paths() -> list[Path]:
 
 
 def is_empty_span(node: ET.Element) -> bool:
+    """Check whether a `<span>` node has no visible text."""
     return clean_text("".join(node.itertext())) == ""
 
 
 def scan_file(path: Path) -> dict:
+    """Scan one XHTML file and summarize paragraph inner tags."""
     tree = ET.parse(path)
     root = tree.getroot()
 
@@ -93,6 +100,7 @@ def scan_file(path: Path) -> dict:
 
 
 def main() -> None:
+    """Generate `data/p_inner_tags_report.json` for all chapter files."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     chapter_paths = load_paths()
     per_file = [scan_file(path) for path in chapter_paths]
