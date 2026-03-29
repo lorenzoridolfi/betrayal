@@ -1,5 +1,6 @@
 """Summarize `data/betrayal.json` into `data/betrayal_short.json` chapter by chapter."""
 
+import argparse
 import json
 import os
 from pathlib import Path
@@ -136,8 +137,28 @@ def summarize_chapter(
     ]
 
 
+def resolve_effective_examples(
+    examples: list[dict], chapter_limit: int | None
+) -> list[dict]:
+    """Return chapter list truncated to requested limit when provided."""
+    if chapter_limit is None:
+        return examples
+    if chapter_limit <= 0:
+        raise ValueError("--chapter-limit must be greater than zero.")
+    return examples[:chapter_limit]
+
+
 def main() -> None:
     """Generate summarized chapter JSON and preserve book metadata."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--chapter-limit",
+        type=int,
+        default=None,
+        help="Summarize only the first N chapters.",
+    )
+    args = parser.parse_args()
+
     effective_log_level = configure_logging()
     logger.debug(
         "Starting summarize_betrayal_json with LOG_LEVEL=%s", effective_log_level
@@ -161,9 +182,17 @@ def main() -> None:
     if not isinstance(examples, list):
         raise ValueError("Input JSON must contain list key 'examples'.")
 
+    effective_examples = resolve_effective_examples(examples, args.chapter_limit)
+    logger.info(
+        "Summarization chapter_limit=%s total_chapters=%d processing_chapters=%d",
+        args.chapter_limit,
+        len(examples),
+        len(effective_examples),
+    )
+
     base_prompt = read_text_file(PROMPT_FILE)
     summarized_examples: list[dict[str, object]] = []
-    for chapter_index, chapter in enumerate(examples, start=1):
+    for chapter_index, chapter in enumerate(effective_examples, start=1):
         if not isinstance(chapter, dict):
             raise ValueError(f"Chapter at index {chapter_index} must be an object.")
 
