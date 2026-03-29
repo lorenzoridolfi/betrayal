@@ -33,7 +33,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize_example.txt"
+            prompt_file = temp_path / "prompts" / "summarize.txt"
 
             _write_json(
                 input_file,
@@ -98,7 +98,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize_example.txt"
+            prompt_file = temp_path / "prompts" / "summarize.txt"
 
             _write_json(
                 input_file,
@@ -185,7 +185,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize_example.txt"
+            prompt_file = temp_path / "prompts" / "summarize.txt"
 
             _write_json(
                 input_file,
@@ -245,7 +245,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize_example.txt"
+            prompt_file = temp_path / "prompts" / "summarize.txt"
 
             _write_json(
                 input_file,
@@ -285,7 +285,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize_example.txt"
+            prompt_file = temp_path / "prompts" / "summarize.txt"
 
             _write_json(
                 input_file,

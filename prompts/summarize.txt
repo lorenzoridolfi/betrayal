@@ -15,6 +15,7 @@ Language and audience:
 - Convert UK English to standard US English.
 - Write for adults who speak English as a second language.
 - Use plain, clear, natural American English.
+- Prioritize clarity and reader comprehension over stylistic flair whenever there is a trade-off.
 - Prefer familiar vocabulary and direct sentence structure.
 - Avoid ornate, academic, literary, archaic, or overly sophisticated wording.
 - Keep the tone mature, serious, and intelligent, but easy to read.

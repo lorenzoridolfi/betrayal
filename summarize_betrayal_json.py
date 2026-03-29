@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 
 INPUT_FILE = DATA_DIR / "betrayal.json"
 OUTPUT_FILE = DATA_DIR / "betrayal_short.json"
-PROMPT_FILE = PROMPTS_DIR / "summarize_example.txt"
+PROMPT_FILE = PROMPTS_DIR / "summarize.txt"
 SUMMARY_MODEL_ENV_VAR = "SUMMARY_MODEL"
 SUMMARY_TIMEOUT_SECONDS_ENV_VAR = "SUMMARY_TIMEOUT_SECONDS"
 SUMMARY_MODEL_DEFAULT = "gpt-5.4"
