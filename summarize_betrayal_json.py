@@ -3,8 +3,10 @@
 import argparse
 import json
 import os
+import time
 from pathlib import Path
 
+from eta_estimator import EtaEstimator
 from ingest.logging_utils import configure_logging, get_logger
 from ingest.pipeline_common import (
     read_json,
@@ -143,6 +145,14 @@ def build_user_prompt(base_prompt: str, chapter_source_text: str) -> str:
     )
 
 
+def format_duration_hms(total_seconds: float) -> str:
+    """Format seconds as `Hh MMm SSs` for stable progress logging."""
+    rounded_seconds = int(round(max(0.0, total_seconds)))
+    hours, remainder = divmod(rounded_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours}h {minutes:02d}m {seconds:02d}s"
+
+
 def summarize_chapter(
     chapter: dict,
     *,
@@ -239,6 +249,10 @@ def main() -> None:
 
     summarized_examples: list[dict[str, object]] = []
     total_chapters_to_process = len(prepared_chapters)
+    eta_estimator: EtaEstimator | None = None
+    if total_chapters_to_process > 0:
+        eta_estimator = EtaEstimator(total_steps=total_chapters_to_process)
+
     for chapter_index, (chapter, chapter_source_text) in enumerate(
         prepared_chapters, start=1
     ):
@@ -249,6 +263,7 @@ def main() -> None:
             total_chapters_to_process,
             source_file,
         )
+        chapter_started_at = time.perf_counter()
         summarized_paragraphs = summarize_chapter(
             chapter,
             chapter_source_text=chapter_source_text,
@@ -256,6 +271,28 @@ def main() -> None:
             model_name=model_name,
             timeout_seconds=timeout_seconds,
         )
+        chapter_elapsed_seconds = time.perf_counter() - chapter_started_at
+        if eta_estimator is None:
+            raise RuntimeError(
+                "ETA estimator must be initialized for chapter processing."
+            )
+        eta_estimator.update(chapter_elapsed_seconds)
+
+        chapter_duration_hms = format_duration_hms(chapter_elapsed_seconds)
+        elapsed_hms = format_duration_hms(eta_estimator.elapsed_seconds)
+        eta_remaining_hms = format_duration_hms(eta_estimator.eta_seconds)
+        total_estimated_hms = format_duration_hms(eta_estimator.estimated_total_seconds)
+        logger.info(
+            "[%d/%d] Done source_file=%s chapter_duration=%s elapsed=%s eta_remaining=%s eta_total=%s",
+            chapter_index,
+            total_chapters_to_process,
+            source_file,
+            chapter_duration_hms,
+            elapsed_hms,
+            eta_remaining_hms,
+            total_estimated_hms,
+        )
+
         summarized_examples.append(
             {
                 "source_file": chapter.get("source_file"),

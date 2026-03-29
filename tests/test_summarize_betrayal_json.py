@@ -21,6 +21,13 @@ def _write_json(path: Path, data: dict) -> None:
 class SummarizeBetrayalJsonTests(unittest.TestCase):
     """Validate summary output shape and metadata propagation."""
 
+    def test_format_duration_hms_always_includes_hours_minutes_seconds(self) -> None:
+        """Duration formatter should produce a stable H/M/S output shape."""
+        self.assertEqual(summarize_betrayal_json.format_duration_hms(5), "0h 00m 05s")
+        self.assertEqual(
+            summarize_betrayal_json.format_duration_hms(3_661), "1h 01m 01s"
+        )
+
     def test_build_user_prompt_includes_json_output_contract(self) -> None:
         """Prompt builder should append strict JSON output instructions."""
         prompt = summarize_betrayal_json.build_user_prompt("Base", "Source text")
@@ -172,6 +179,105 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 written["examples"][0]["source_file"], "009-Chapter_1.xhtml"
             )
             self.assertEqual(summary_mock.call_count, 1)
+
+    def test_main_logs_eta_progress_after_each_processed_chapter(self) -> None:
+        """Main should log chapter ETA metrics in H/M/S after each chapter."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            input_file = temp_path / "data" / "betrayal.json"
+            output_file = temp_path / "data" / "betrayal_short.json"
+            prompt_file = temp_path / "prompts" / "summarize.txt"
+
+            _write_json(
+                input_file,
+                {
+                    "book_metadata": {
+                        "title": "Betrayal",
+                        "subtitle": "Power, deceit, and the fight for the future of the Royal family",
+                        "author_line": "From the number one bestselling author Tom Bower",
+                        "cover": {
+                            "source_file": "contents/OPS/001-Cover.xhtml",
+                            "image_src": "images/cover.jpg",
+                            "image_alt": "cover alt",
+                        },
+                    },
+                    "examples": [
+                        {
+                            "source_file": "009-Chapter_1.xhtml",
+                            "chapter_type": "chapter",
+                            "chapter_number": 1,
+                            "chapter_label": "CHAPTER 1",
+                            "chapter_title": "Manchester",
+                            "paragraphs": [
+                                {"paragraph_index": 1, "text": "Paragraph one."}
+                            ],
+                        },
+                        {
+                            "source_file": "010-Chapter_2.xhtml",
+                            "chapter_type": "chapter",
+                            "chapter_number": 2,
+                            "chapter_label": "CHAPTER 2",
+                            "chapter_title": "Global Celebrity",
+                            "paragraphs": [
+                                {"paragraph_index": 1, "text": "Paragraph alpha."}
+                            ],
+                        },
+                    ],
+                },
+            )
+            prompt_file.parent.mkdir(parents=True, exist_ok=True)
+            prompt_file.write_text("Base summarize prompt", encoding="utf-8")
+
+            with (
+                patch.object(sys, "argv", ["summarize_betrayal_json.py"]),
+                patch.object(summarize_betrayal_json, "INPUT_FILE", input_file),
+                patch.object(summarize_betrayal_json, "OUTPUT_FILE", output_file),
+                patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
+                patch.object(
+                    summarize_betrayal_json,
+                    "call_openai_structured_cached",
+                    return_value={
+                        "summary_paragraphs": [
+                            "Summary paragraph one.",
+                            "Summary paragraph two.",
+                        ]
+                    },
+                ),
+                patch.object(
+                    summarize_betrayal_json.time,
+                    "perf_counter",
+                    side_effect=[10.0, 70.0, 70.0, 130.0],
+                ),
+                patch.object(summarize_betrayal_json, "logger") as logger_mock,
+            ):
+                summarize_betrayal_json.main()
+
+            done_calls = [
+                call
+                for call in logger_mock.info.call_args_list
+                if call.args
+                and call.args[0]
+                == "[%d/%d] Done source_file=%s chapter_duration=%s elapsed=%s eta_remaining=%s eta_total=%s"
+            ]
+            self.assertEqual(len(done_calls), 2)
+
+            first_done_args = done_calls[0].args
+            self.assertEqual(first_done_args[1], 1)
+            self.assertEqual(first_done_args[2], 2)
+            self.assertEqual(first_done_args[3], "009-Chapter_1.xhtml")
+            self.assertEqual(first_done_args[4], "0h 01m 00s")
+            self.assertEqual(first_done_args[5], "0h 01m 00s")
+            self.assertEqual(first_done_args[6], "0h 01m 00s")
+            self.assertEqual(first_done_args[7], "0h 02m 00s")
+
+            second_done_args = done_calls[1].args
+            self.assertEqual(second_done_args[1], 2)
+            self.assertEqual(second_done_args[2], 2)
+            self.assertEqual(second_done_args[3], "010-Chapter_2.xhtml")
+            self.assertEqual(second_done_args[4], "0h 01m 00s")
+            self.assertEqual(second_done_args[5], "0h 02m 00s")
+            self.assertEqual(second_done_args[6], "0h 00m 00s")
+            self.assertEqual(second_done_args[7], "0h 02m 00s")
 
     def test_main_chapter_limit_rejects_non_positive_value(self) -> None:
         """Non-positive chapter limit should fail fast with ValueError."""
