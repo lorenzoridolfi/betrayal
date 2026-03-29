@@ -1,21 +1,25 @@
 """Summarize `data/betrayal.json` chapter by chapter into a JSON output file."""
 
 import argparse
-import json
-import os
 import time
 from pathlib import Path
+
+from jinja2 import TemplateNotFound
 
 from eta_estimator import EtaEstimator
 from ingest.logging_utils import configure_logging, get_logger
 from ingest.pipeline_common import (
+    call_openai_structured_with_retry,
     read_json,
-    read_text_file,
+    render_prompt_template,
     validate_with_schema,
     write_json,
 )
-from ingest.pipeline_params import MODEL_DEFAULT, TIMEOUT_SECONDS_DEFAULT
-from openai_structured_cache import MAX_ATTEMPTS_DEFAULT, call_openai_structured_cached
+from ingest.pipeline_params import (
+    MAX_ATTEMPTS_DEFAULT,
+    MODEL_DEFAULT,
+    TIMEOUT_SECONDS_DEFAULT,
+)
 from project_paths import DATA_DIR, PROMPTS_DIR
 
 
@@ -23,11 +27,9 @@ logger = get_logger(__name__)
 
 INPUT_FILE = DATA_DIR / "betrayal.json"
 OUTPUT_FILE = DATA_DIR / "betrayal_short.json"
-PROMPT_FILE = PROMPTS_DIR / "summarize.txt"
-SUMMARY_MODEL_ENV_VAR = "SUMMARY_MODEL"
-SUMMARY_TIMEOUT_SECONDS_ENV_VAR = "SUMMARY_TIMEOUT_SECONDS"
-SUMMARY_MODEL_DEFAULT = "gpt-5.4"
-SUMMARY_MODEL_DRAFT = MODEL_DEFAULT
+PROMPT_FILE = PROMPTS_DIR / "summarize.xml"
+SUMMARY_MODEL_DEFAULT = MODEL_DEFAULT
+SUMMARY_MAX_ATTEMPTS_DEFAULT = MAX_ATTEMPTS_DEFAULT
 
 SUMMARY_RESPONSE_SCHEMA = {
     "type": "object",
@@ -47,41 +49,50 @@ REQUIRED_BOOK_METADATA_KEYS = ("title", "subtitle", "author_line", "cover")
 REQUIRED_COVER_KEYS = ("source_file", "image_src", "image_alt")
 
 
-def resolve_model_name(*, draft_mode: bool) -> str:
-    """Resolve summarization model from draft flag, environment, or default."""
-    if draft_mode:
-        draft_model_name = SUMMARY_MODEL_DRAFT.strip()
-        if not draft_model_name:
-            raise ValueError("Resolved draft summary model name is empty.")
-        return draft_model_name
+def resolve_model_name() -> str:
+    """Resolve summarization model from project defaults.
 
-    model_name = os.environ.get(SUMMARY_MODEL_ENV_VAR, SUMMARY_MODEL_DEFAULT).strip()
+    The summarizer intentionally does not read runtime env overrides for model
+    selection to keep execution deterministic and explicit.
+    """
+    model_name = SUMMARY_MODEL_DEFAULT.strip()
     if not model_name:
         raise ValueError("Resolved summary model name is empty.")
     return model_name
 
 
 def resolve_timeout_seconds() -> int:
-    """Resolve timeout seconds from environment or default constant."""
-    raw_timeout = os.environ.get(
-        SUMMARY_TIMEOUT_SECONDS_ENV_VAR, str(TIMEOUT_SECONDS_DEFAULT)
-    )
-    try:
-        timeout_seconds = int(raw_timeout)
-    except ValueError as error:
-        raise ValueError(
-            f"{SUMMARY_TIMEOUT_SECONDS_ENV_VAR} must be an integer. Got '{raw_timeout}'."
-        ) from error
+    """Resolve timeout seconds from project defaults.
+
+    The summarizer intentionally ignores environment overrides for timeout to
+    avoid hidden runtime variability.
+    """
+    timeout_seconds = TIMEOUT_SECONDS_DEFAULT
 
     if timeout_seconds <= 0:
-        raise ValueError(
-            f"{SUMMARY_TIMEOUT_SECONDS_ENV_VAR} must be greater than zero."
-        )
+        raise ValueError("TIMEOUT_SECONDS_DEFAULT must be greater than zero.")
     return timeout_seconds
 
 
+def resolve_max_attempts() -> int:
+    """Resolve retry-attempt budget from project defaults.
+
+    The summarizer intentionally ignores environment overrides for retry budget
+    to keep retries consistent across runs.
+    """
+    max_attempts = SUMMARY_MAX_ATTEMPTS_DEFAULT
+
+    if max_attempts <= 0:
+        raise ValueError("SUMMARY_MAX_ATTEMPTS_DEFAULT must be greater than zero.")
+    return max_attempts
+
+
 def build_chapter_source_text(chapter: dict) -> str:
-    """Build chapter text payload used as source context for summarization."""
+    """Build chapter body text payload used as source context for summarization.
+
+    The chapter title is intentionally excluded from this body text. Title context
+    is passed separately to reduce title-echo artifacts in generated paragraphs.
+    """
     paragraphs = chapter.get("paragraphs")
     if not isinstance(paragraphs, list):
         raise ValueError("Chapter paragraphs must be a list.")
@@ -100,9 +111,6 @@ def build_chapter_source_text(chapter: dict) -> str:
     if not paragraph_texts:
         raise ValueError("Chapter has no non-empty paragraph text to summarize.")
 
-    chapter_title = chapter.get("chapter_title")
-    if isinstance(chapter_title, str) and chapter_title.strip():
-        return f"{chapter_title.strip()}\n\n" + "\n\n".join(paragraph_texts)
     return "\n\n".join(paragraph_texts)
 
 
@@ -141,15 +149,63 @@ def prepare_chapters_for_summarization(
     return prepared_chapters
 
 
-def build_user_prompt(base_prompt: str, chapter_source_text: str) -> str:
-    """Build chapter prompt from reference guidance plus minimal JSON contract."""
-    return (
-        f"{base_prompt}\n\n"
-        "For this API response, return a JSON object with a single key 'summary_paragraphs' "
-        "containing multiple prose paragraphs in order.\n\n"
-        "Chapter source:\n"
-        f"{chapter_source_text}"
+def build_user_prompt(
+    *,
+    prompt_template_path: Path,
+    chapter_source_text: str,
+    chapter_title: str | None,
+) -> str:
+    """Render XML prompt template with explicit chapter context values.
+
+    Missing template files fail fast with FileNotFoundError so callers receive a
+    filesystem-oriented error instead of a template-loader implementation detail.
+    """
+    normalized_title = chapter_title.strip() if isinstance(chapter_title, str) else ""
+    try:
+        return render_prompt_template(
+            prompt_template_path,
+            {
+                "chapter_title_context": normalized_title,
+                "chapter_source": chapter_source_text,
+            },
+        )
+    except TemplateNotFound as error:
+        raise FileNotFoundError(
+            f"Prompt template file not found: {prompt_template_path}"
+        ) from error
+
+
+def validate_summary_paragraphs(
+    summary_paragraphs: list[str], chapter_title: str | None
+) -> list[str]:
+    """Validate and normalize model summary paragraphs.
+
+    This validation intentionally stays minimal: enforce non-empty paragraphs and
+    block title echo at paragraph start.
+    """
+    normalized_title = (
+        chapter_title.strip().lower() if isinstance(chapter_title, str) else ""
     )
+    cleaned_paragraphs: list[str] = []
+
+    for paragraph_index, paragraph_text in enumerate(summary_paragraphs, start=1):
+        normalized_paragraph = paragraph_text.strip()
+        if not normalized_paragraph:
+            raise ValueError(
+                f"Summarizer returned empty paragraph at index {paragraph_index}."
+            )
+
+        if normalized_title:
+            first_line = normalized_paragraph.splitlines()[0].strip().lower()
+            if first_line == normalized_title:
+                raise ValueError(
+                    "Summarizer output repeats chapter title at paragraph index "
+                    f"{paragraph_index}."
+                )
+
+        cleaned_paragraphs.append(normalized_paragraph)
+
+    return cleaned_paragraphs
 
 
 def format_duration_hms(total_seconds: float) -> str:
@@ -163,30 +219,37 @@ def format_duration_hms(total_seconds: float) -> str:
 def summarize_chapter(
     chapter: dict,
     *,
+    prompt_template_path: Path,
     chapter_source_text: str,
-    base_prompt: str,
     model_name: str,
     timeout_seconds: int,
+    max_attempts: int,
 ) -> list[dict[str, object]]:
     """Summarize one chapter into multiple indexed paragraph objects."""
-    user_prompt = build_user_prompt(base_prompt, chapter_source_text)
-    summary_data = call_openai_structured_cached(
+    user_prompt = build_user_prompt(
+        prompt_template_path=prompt_template_path,
+        chapter_source_text=chapter_source_text,
+        chapter_title=chapter.get("chapter_title"),
+    )
+    summary_data = call_openai_structured_with_retry(
         model=model_name,
         system_prompt="",
         user_prompt=user_prompt,
         schema_name="chapter_summary_paragraphs",
         schema=SUMMARY_RESPONSE_SCHEMA,
-        input_payload={
-            "source_file": chapter.get("source_file"),
-            "chapter_title": chapter.get("chapter_title"),
-            "chapter_source_text": chapter_source_text,
-        },
         timeout_seconds=timeout_seconds,
-        max_attempts=MAX_ATTEMPTS_DEFAULT,
+        max_attempts=max_attempts,
+        result_validator=lambda payload: validate_summary_paragraphs(
+            payload["summary_paragraphs"],
+            chapter.get("chapter_title"),
+        ),
     )
     validate_with_schema(summary_data, SUMMARY_RESPONSE_SCHEMA)
 
-    summary_paragraphs = summary_data["summary_paragraphs"]
+    summary_paragraphs = validate_summary_paragraphs(
+        summary_data["summary_paragraphs"],
+        chapter.get("chapter_title"),
+    )
     return [
         {"paragraph_index": index, "text": text.strip()}
         for index, text in enumerate(summary_paragraphs, start=1)
@@ -204,11 +267,9 @@ def resolve_effective_examples(
     return examples[:chapter_limit]
 
 
-def resolve_output_file_path(*, draft_mode: bool, chapter_limit: int | None) -> Path:
+def resolve_output_file_path(*, chapter_limit: int | None) -> Path:
     """Resolve output file path and encode active CLI options in filename."""
     suffix_parts: list[str] = []
-    if draft_mode:
-        suffix_parts.append("draft")
     if chapter_limit is not None:
         suffix_parts.append(f"limit_{chapter_limit}")
 
@@ -224,14 +285,6 @@ def main() -> None:
     """Generate summarized chapter JSON and preserve book metadata."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--draft",
-        action="store_true",
-        help=(
-            "Use low-cost draft model for summarization. "
-            f"Forces model={SUMMARY_MODEL_DRAFT}."
-        ),
-    )
-    parser.add_argument(
         "--chapter-limit",
         type=int,
         default=None,
@@ -244,19 +297,17 @@ def main() -> None:
         "Starting summarize_betrayal_json with LOG_LEVEL=%s", effective_log_level
     )
 
-    model_name = resolve_model_name(draft_mode=args.draft)
+    model_name = resolve_model_name()
     timeout_seconds = resolve_timeout_seconds()
-    output_file = resolve_output_file_path(
-        draft_mode=args.draft,
-        chapter_limit=args.chapter_limit,
-    )
+    max_attempts = resolve_max_attempts()
+    output_file = resolve_output_file_path(chapter_limit=args.chapter_limit)
     logger.info(
-        "Summarizing input=%s output=%s model=%s draft_mode=%s timeout_seconds=%d",
+        "Summarizing input=%s output=%s model=%s timeout_seconds=%d max_attempts=%d",
         INPUT_FILE,
         output_file,
         model_name,
-        args.draft,
         timeout_seconds,
+        max_attempts,
     )
 
     data = read_json(INPUT_FILE)
@@ -276,7 +327,6 @@ def main() -> None:
         len(effective_examples),
     )
 
-    base_prompt = read_text_file(PROMPT_FILE)
     prepared_chapters = prepare_chapters_for_summarization(effective_examples)
     logger.info(
         "Validated all chapters before LLM calls processing_chapters=%d",
@@ -302,10 +352,11 @@ def main() -> None:
         chapter_started_at = time.perf_counter()
         summarized_paragraphs = summarize_chapter(
             chapter,
+            prompt_template_path=PROMPT_FILE,
             chapter_source_text=chapter_source_text,
-            base_prompt=base_prompt,
             model_name=model_name,
             timeout_seconds=timeout_seconds,
+            max_attempts=max_attempts,
         )
         chapter_elapsed_seconds = time.perf_counter() - chapter_started_at
         if eta_estimator is None:

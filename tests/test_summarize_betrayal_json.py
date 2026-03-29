@@ -1,7 +1,6 @@
 """Tests for summarize_betrayal_json program behavior."""
 
 import json
-import os
 import sys
 import tempfile
 import unittest
@@ -21,46 +20,24 @@ def _write_json(path: Path, data: dict) -> None:
 class SummarizeBetrayalJsonTests(unittest.TestCase):
     """Validate summary output shape and metadata propagation."""
 
-    def test_resolve_model_name_uses_environment_when_not_draft(self) -> None:
-        """Model resolver should honor SUMMARY_MODEL when draft mode is disabled."""
-        with patch.dict(os.environ, {"SUMMARY_MODEL": "gpt-5-custom"}, clear=False):
-            model_name = summarize_betrayal_json.resolve_model_name(draft_mode=False)
-
-        self.assertEqual(model_name, "gpt-5-custom")
-
-    def test_resolve_model_name_forces_draft_model_even_with_env_override(self) -> None:
-        """Draft mode should force the configured low-cost draft model."""
-        with patch.dict(os.environ, {"SUMMARY_MODEL": "gpt-5-expensive"}, clear=False):
-            model_name = summarize_betrayal_json.resolve_model_name(draft_mode=True)
-
-        self.assertEqual(model_name, summarize_betrayal_json.SUMMARY_MODEL_DRAFT)
+    def test_resolve_model_name_uses_project_default(self) -> None:
+        """Model resolver should use project default model name."""
+        self.assertEqual(summarize_betrayal_json.resolve_model_name(), "gpt-5-mini")
 
     def test_resolve_output_file_path_default_keeps_base_name(self) -> None:
         """Output file resolver should keep base filename when no flags are active."""
         output_path = summarize_betrayal_json.resolve_output_file_path(
-            draft_mode=False,
             chapter_limit=None,
         )
         self.assertEqual(output_path, summarize_betrayal_json.OUTPUT_FILE)
 
-    def test_resolve_output_file_path_encodes_active_flags_in_file_name(self) -> None:
-        """Output file resolver should encode draft and limit options in filename."""
-        draft_path = summarize_betrayal_json.resolve_output_file_path(
-            draft_mode=True,
-            chapter_limit=None,
-        )
+    def test_resolve_output_file_path_encodes_limit_in_file_name(self) -> None:
+        """Output file resolver should encode chapter limit in filename."""
         limit_path = summarize_betrayal_json.resolve_output_file_path(
-            draft_mode=False,
-            chapter_limit=3,
-        )
-        combined_path = summarize_betrayal_json.resolve_output_file_path(
-            draft_mode=True,
             chapter_limit=3,
         )
 
-        self.assertEqual(draft_path.name, "betrayal_short_draft.json")
         self.assertEqual(limit_path.name, "betrayal_short_limit_3.json")
-        self.assertEqual(combined_path.name, "betrayal_short_draft_limit_3.json")
 
     def test_format_duration_hms_always_includes_hours_minutes_seconds(self) -> None:
         """Duration formatter should produce a stable H/M/S output shape."""
@@ -71,9 +48,55 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
 
     def test_build_user_prompt_includes_json_output_contract(self) -> None:
         """Prompt builder should append strict JSON output instructions."""
-        prompt = summarize_betrayal_json.build_user_prompt("Base", "Source text")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            template_path = Path(temp_dir) / "summarize.xml"
+            template_path.write_text(
+                "<prompt><output>{{ chapter_title_context }}</output><source>{{ chapter_source }}</source><json>summary_paragraphs</json></prompt>",
+                encoding="utf-8",
+            )
+            prompt = summarize_betrayal_json.build_user_prompt(
+                prompt_template_path=template_path,
+                chapter_source_text="Source text",
+                chapter_title="Manchester",
+            )
         self.assertIn("summary_paragraphs", prompt)
-        self.assertIn("Chapter source", prompt)
+        self.assertIn("Source text", prompt)
+        self.assertIn("Manchester", prompt)
+
+    def test_build_chapter_source_text_excludes_title_prefix(self) -> None:
+        """Chapter source text should include only body paragraphs, not title prefix."""
+        source_text = summarize_betrayal_json.build_chapter_source_text(
+            {
+                "chapter_title": "Manchester",
+                "paragraphs": [
+                    {"paragraph_index": 1, "text": "Paragraph one."},
+                    {"paragraph_index": 2, "text": "Paragraph two."},
+                ],
+            }
+        )
+        self.assertEqual(source_text, "Paragraph one.\n\nParagraph two.")
+
+    def test_validate_summary_paragraphs_accepts_regular_non_empty_text(self) -> None:
+        """Paragraph validation should keep non-empty text when title echo is absent."""
+        paragraphs = summarize_betrayal_json.validate_summary_paragraphs(
+            [
+                "Valid text.",
+                "Text can include words like summary_paragraphs without failing.",
+            ],
+            chapter_title="Manchester",
+        )
+        self.assertEqual(len(paragraphs), 2)
+
+    def test_validate_summary_paragraphs_rejects_chapter_title_line(self) -> None:
+        """Summary paragraph validation should reject paragraphs starting with title."""
+        with self.assertRaises(ValueError):
+            summarize_betrayal_json.validate_summary_paragraphs(
+                [
+                    "Manchester\n\nThis paragraph should fail because it repeats title.",
+                    "Another paragraph.",
+                ],
+                chapter_title="Manchester",
+            )
 
     def test_prepare_chapters_rejects_non_object_chapter(self) -> None:
         """Chapter validation should fail when an item is not an object."""
@@ -96,7 +119,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -136,7 +159,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
                     summarize_betrayal_json,
-                    "call_openai_structured_cached",
+                    "call_openai_structured_with_retry",
                     return_value={
                         "summary_paragraphs": [
                             "Summary paragraph one.",
@@ -156,7 +179,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             self.assertEqual(paragraphs[1]["paragraph_index"], 2)
             self.assertEqual(
                 llm_mock.call_args.kwargs["max_attempts"],
-                summarize_betrayal_json.MAX_ATTEMPTS_DEFAULT,
+                summarize_betrayal_json.SUMMARY_MAX_ATTEMPTS_DEFAULT,
             )
 
     def test_main_chapter_limit_summarizes_only_first_n_chapters(self) -> None:
@@ -165,7 +188,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -218,7 +241,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
                     summarize_betrayal_json,
-                    "call_openai_structured_cached",
+                    "call_openai_structured_with_retry",
                     return_value={
                         "summary_paragraphs": [
                             "Summary paragraph one.",
@@ -243,7 +266,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -292,7 +315,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
                     summarize_betrayal_json,
-                    "call_openai_structured_cached",
+                    "call_openai_structured_with_retry",
                     return_value={
                         "summary_paragraphs": [
                             "Summary paragraph one.",
@@ -342,7 +365,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -369,7 +392,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "OUTPUT_FILE", output_file),
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
-                    summarize_betrayal_json, "call_openai_structured_cached"
+                    summarize_betrayal_json, "call_openai_structured_with_retry"
                 ) as llm_mock,
                 patch.object(summarize_betrayal_json, "logger") as logger_mock,
             ):
@@ -394,7 +417,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -421,7 +444,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "OUTPUT_FILE", output_file),
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
-                    summarize_betrayal_json, "call_openai_structured_cached"
+                    summarize_betrayal_json, "call_openai_structured_with_retry"
                 ) as llm_mock,
                 self.assertRaises(ValueError),
             ):
@@ -435,7 +458,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -484,7 +507,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
                     summarize_betrayal_json,
-                    "call_openai_structured_cached",
+                    "call_openai_structured_with_retry",
                     side_effect=[
                         {
                             "summary_paragraphs": [
@@ -518,7 +541,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -564,7 +587,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "OUTPUT_FILE", output_file),
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
-                    summarize_betrayal_json, "call_openai_structured_cached"
+                    summarize_betrayal_json, "call_openai_structured_with_retry"
                 ) as llm_mock,
                 self.assertRaises(ValueError),
             ):
@@ -578,7 +601,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -604,7 +627,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "OUTPUT_FILE", output_file),
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
-                    summarize_betrayal_json, "call_openai_structured_cached"
+                    summarize_betrayal_json, "call_openai_structured_with_retry"
                 ) as llm_mock,
                 self.assertRaises(ValueError),
             ):
@@ -618,7 +641,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -645,7 +668,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 patch.object(summarize_betrayal_json, "OUTPUT_FILE", output_file),
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
-                    summarize_betrayal_json, "call_openai_structured_cached"
+                    summarize_betrayal_json, "call_openai_structured_with_retry"
                 ) as llm_mock,
                 self.assertRaises(ValueError),
             ):
@@ -697,7 +720,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                     summarize_betrayal_json, "PROMPT_FILE", missing_prompt_file
                 ),
                 patch.object(
-                    summarize_betrayal_json, "call_openai_structured_cached"
+                    summarize_betrayal_json, "call_openai_structured_with_retry"
                 ) as llm_mock,
                 self.assertRaises(FileNotFoundError),
             ):
@@ -705,27 +728,27 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
 
             llm_mock.assert_not_called()
 
-    def test_main_fails_on_empty_model_env_before_llm_call(self) -> None:
-        """Empty summary model environment value should fail fast."""
-        with (
-            patch.object(sys, "argv", ["summarize_betrayal_json.py"]),
-            patch.dict(os.environ, {"SUMMARY_MODEL": ""}, clear=False),
-            patch.object(
-                summarize_betrayal_json, "call_openai_structured_cached"
-            ) as llm_mock,
-            self.assertRaises(ValueError),
-        ):
-            summarize_betrayal_json.main()
+    def test_resolve_timeout_seconds_uses_project_default(self) -> None:
+        """Timeout resolver should use the project default value."""
+        self.assertEqual(
+            summarize_betrayal_json.resolve_timeout_seconds(),
+            summarize_betrayal_json.TIMEOUT_SECONDS_DEFAULT,
+        )
 
-        llm_mock.assert_not_called()
+    def test_resolve_max_attempts_uses_project_default(self) -> None:
+        """Retry budget resolver should use the project default value."""
+        self.assertEqual(
+            summarize_betrayal_json.resolve_max_attempts(),
+            summarize_betrayal_json.SUMMARY_MAX_ATTEMPTS_DEFAULT,
+        )
 
-    def test_main_draft_forces_gpt_5_mini_model(self) -> None:
-        """Draft CLI flag should force low-cost model for LLM calls."""
+    def test_main_uses_gpt_5_mini_default_model(self) -> None:
+        """Main should use gpt-5-mini from project defaults."""
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             input_file = temp_path / "data" / "betrayal.json"
             output_file = temp_path / "data" / "betrayal_short.json"
-            prompt_file = temp_path / "prompts" / "summarize.txt"
+            prompt_file = temp_path / "prompts" / "summarize.xml"
 
             _write_json(
                 input_file,
@@ -759,18 +782,13 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             prompt_file.write_text("Base summarize prompt", encoding="utf-8")
 
             with (
-                patch.object(
-                    sys,
-                    "argv",
-                    ["summarize_betrayal_json.py", "--draft"],
-                ),
-                patch.dict(os.environ, {"SUMMARY_MODEL": "gpt-5.4"}, clear=False),
+                patch.object(sys, "argv", ["summarize_betrayal_json.py"]),
                 patch.object(summarize_betrayal_json, "INPUT_FILE", input_file),
                 patch.object(summarize_betrayal_json, "OUTPUT_FILE", output_file),
                 patch.object(summarize_betrayal_json, "PROMPT_FILE", prompt_file),
                 patch.object(
                     summarize_betrayal_json,
-                    "call_openai_structured_cached",
+                    "call_openai_structured_with_retry",
                     return_value={
                         "summary_paragraphs": [
                             "Summary paragraph one.",
@@ -783,24 +801,9 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
 
             self.assertEqual(
                 llm_mock.call_args.kwargs["model"],
-                summarize_betrayal_json.SUMMARY_MODEL_DRAFT,
+                "gpt-5-mini",
             )
-            draft_output_file = output_file.with_name("betrayal_short_draft.json")
-            self.assertTrue(draft_output_file.exists())
-
-    def test_main_fails_on_invalid_timeout_env_before_llm_call(self) -> None:
-        """Non-integer timeout environment value should fail fast."""
-        with (
-            patch.object(sys, "argv", ["summarize_betrayal_json.py"]),
-            patch.dict(os.environ, {"SUMMARY_TIMEOUT_SECONDS": "abc"}, clear=False),
-            patch.object(
-                summarize_betrayal_json, "call_openai_structured_cached"
-            ) as llm_mock,
-            self.assertRaises(ValueError),
-        ):
-            summarize_betrayal_json.main()
-
-        llm_mock.assert_not_called()
+            self.assertTrue(output_file.exists())
 
 
 if __name__ == "__main__":
