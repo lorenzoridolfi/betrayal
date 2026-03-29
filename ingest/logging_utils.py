@@ -10,6 +10,13 @@ LOG_LEVEL_DEFAULT = "DEBUG"
 LOG_LEVEL_CHOICES = ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
 LOG_FILE_ENV_VAR = "LOG_FILE"
 LOG_FILE_DEFAULT = Path(__file__).resolve().parents[1] / "data" / "pipeline.log"
+THIRD_PARTY_LOG_LEVEL = logging.WARNING
+THIRD_PARTY_NOISY_LOGGERS = (
+    "openai",
+    "openai._base_client",
+    "httpx",
+    "httpcore",
+)
 
 
 def parse_log_level(level_name: str) -> int:
@@ -55,6 +62,12 @@ def configure_logging() -> str:
     logging.basicConfig(
         level=level_value, handlers=[console_handler, file_handler], force=True
     )
+
+    # Keep root/app debug logs available while preventing prompt and request payload
+    # leakage from verbose third-party SDK loggers.
+    for logger_name in THIRD_PARTY_NOISY_LOGGERS:
+        logging.getLogger(logger_name).setLevel(THIRD_PARTY_LOG_LEVEL)
+
     return level_name.strip().upper()
 
 
