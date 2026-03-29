@@ -119,6 +119,7 @@
 * Do not make unrelated cleanups.
 * Do not rename symbols, move files, reformat broad areas, or rewrite adjacent code unless that is necessary for the requested task.
 * Keep diffs tight, local, and reviewable.
+* Don't do or add anything I didn't expressly asked for
 
 ## Rule of Last Resort
 
