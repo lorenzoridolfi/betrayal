@@ -95,7 +95,7 @@ def build_chapter_source_text(chapter: dict) -> str:
 
 
 def build_user_prompt(base_prompt: str, chapter_source_text: str) -> str:
-    """Build chapter prompt from reference guidance plus JSON output contract."""
+    """Build chapter prompt from reference guidance plus minimal JSON contract."""
     return (
         f"{base_prompt}\n\n"
         "For this API response, return a JSON object with a single key 'summary_paragraphs' "
@@ -117,7 +117,7 @@ def summarize_chapter(
     user_prompt = build_user_prompt(base_prompt, chapter_source_text)
     summary_data = call_openai_structured_cached(
         model=model_name,
-        system_prompt="You summarize chapter content into concise, faithful US English prose.",
+        system_prompt="",
         user_prompt=user_prompt,
         schema_name="chapter_summary_paragraphs",
         schema=SUMMARY_RESPONSE_SCHEMA,
