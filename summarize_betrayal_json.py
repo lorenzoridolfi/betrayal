@@ -192,14 +192,16 @@ def main() -> None:
 
     base_prompt = read_text_file(PROMPT_FILE)
     summarized_examples: list[dict[str, object]] = []
+    total_chapters_to_process = len(effective_examples)
     for chapter_index, chapter in enumerate(effective_examples, start=1):
         if not isinstance(chapter, dict):
             raise ValueError(f"Chapter at index {chapter_index} must be an object.")
 
         source_file = chapter.get("source_file")
         logger.info(
-            "Summarizing chapter_index=%d source_file=%s",
+            "[%d/%d] Summarizing source_file=%s",
             chapter_index,
+            total_chapters_to_process,
             source_file,
         )
         summarized_paragraphs = summarize_chapter(
