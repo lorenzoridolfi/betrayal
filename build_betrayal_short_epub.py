@@ -2,6 +2,7 @@
 
 import argparse
 import html
+import mimetypes
 import re
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -20,6 +21,14 @@ OUTPUT_FILE_DEFAULT = DATA_DIR / "betrayal_short.epub"
 OPS_DIR_DEFAULT = ROOT_DIR / "contents" / "OPS"
 OPF_FILE_NAME = "content.opf"
 LANGUAGE_DEFAULT = "en-US"
+XHTML_NS = {"xhtml": "http://www.w3.org/1999/xhtml"}
+COVER_BADGE_TEXT = "SHORT VERSION"
+COVER_BADGE_INLINE_STYLE = (
+    "position: absolute; top: 2vh; right: 2vw; margin: 0; "
+    "padding: 0.35em 0.65em; font-family: sans-serif; "
+    "font-size: 1.05em; font-weight: 700; letter-spacing: 0.06em; "
+    "background: rgba(0, 0, 0, 0.70); color: #fff; z-index: 10000;"
+)
 
 EPUB_STYLE_CSS = """
 body {
@@ -92,10 +101,139 @@ def _extract_book_identifier_from_opf(ops_dir: Path) -> str | None:
     return identifier_text or None
 
 
-def _extract_cover_bytes_and_name(
+def add_binary_item(
+    book: epub.EpubBook, abs_path: Path, epub_file_name: str
+) -> epub.EpubItem:
+    """Add a binary asset item to EPUB using detected media type.
+
+    Raises a fail-fast ValueError when media type cannot be inferred.
+    """
+    media_type, _ = mimetypes.guess_type(abs_path.name)
+    if media_type is None:
+        raise ValueError(f"Could not detect media type for: {abs_path}")
+
+    item = epub.EpubItem(
+        uid=f"asset_{epub_file_name.replace('/', '_')}",
+        file_name=epub_file_name,
+        media_type=media_type,
+        content=abs_path.read_bytes(),
+    )
+    book.add_item(item)
+    return item
+
+
+def _resolve_cover_xhtml_paths(
+    book_metadata: dict, ops_dir: Path
+) -> tuple[Path, Path] | None:
+    """Resolve absolute and root-relative paths for cover XHTML source file."""
+    cover_data = book_metadata.get("cover")
+    if not isinstance(cover_data, dict):
+        return None
+
+    source_file = cover_data.get("source_file")
+    if not isinstance(source_file, str) or not source_file.strip():
+        return None
+
+    source_relpath = Path(source_file.strip())
+    extracted_root = ROOT_DIR
+    source_abspath = extracted_root / source_relpath
+    if source_abspath.exists():
+        return source_abspath, source_relpath
+
+    # Support relative cover paths under OPS when metadata omits contents/OPS prefix.
+    source_abspath = ops_dir / source_relpath
+    if source_abspath.exists():
+        inferred_relpath = Path("contents") / Path("OPS") / source_relpath
+        return source_abspath, inferred_relpath
+
+    raise FileNotFoundError(f"Configured cover source_file not found: {source_file}")
+
+
+def _add_cover_stylesheets(
+    book: epub.EpubBook,
+    *,
+    cover_xhtml_abs: Path,
+    cover_xhtml_relpath: Path,
+) -> None:
+    """Add local stylesheet assets referenced by original cover XHTML."""
+    root = ET.fromstring(cover_xhtml_abs.read_bytes())
+    stylesheet_refs: set[Path] = set()
+    for link in root.findall(".//xhtml:link", XHTML_NS):
+        href = link.get("href")
+        rel = (link.get("rel") or "").lower()
+        if (
+            href
+            and "stylesheet" in rel
+            and not href.startswith(("http://", "https://", "data:"))
+        ):
+            stylesheet_refs.add(Path(href))
+
+    for stylesheet_ref in stylesheet_refs:
+        stylesheet_abs = (cover_xhtml_abs.parent / stylesheet_ref).resolve()
+        if not stylesheet_abs.exists():
+            raise FileNotFoundError(
+                f"Cover stylesheet referenced by {cover_xhtml_abs} not found: {stylesheet_abs}"
+            )
+
+        stylesheet_epub_path = (cover_xhtml_relpath.parent / stylesheet_ref).as_posix()
+        add_binary_item(book, stylesheet_abs, stylesheet_epub_path)
+
+
+def copy_cover_xhtml_from_extracted(
+    book: epub.EpubBook,
+    *,
+    cover_xhtml_abs: Path,
+    cover_xhtml_relpath: Path,
+) -> epub.EpubHtml:
+    """Copy original cover XHTML and inject a SHORT VERSION badge on top.
+
+    The insertion is performed by targeted string replacement to preserve the
+    original XHTML structure and avoid namespace/serialization side effects.
+    """
+    _add_cover_stylesheets(
+        book,
+        cover_xhtml_abs=cover_xhtml_abs,
+        cover_xhtml_relpath=cover_xhtml_relpath,
+    )
+
+    cover_xhtml_text = cover_xhtml_abs.read_text(encoding="utf-8")
+    cover_div_marker = '<div class="cover" id="cover">'
+    if cover_div_marker not in cover_xhtml_text:
+        raise ValueError(
+            f"Cover XHTML does not contain expected cover div marker: {cover_xhtml_abs}"
+        )
+
+    cover_xhtml_text = cover_xhtml_text.replace(
+        cover_div_marker,
+        '<div class="cover" id="cover" style="position: relative;">',
+        1,
+    )
+    if "</div>" not in cover_xhtml_text:
+        raise ValueError(
+            f"Cover XHTML does not contain expected closing cover div: {cover_xhtml_abs}"
+        )
+
+    badge_markup = (
+        f'<p class="short-version-badge" style="{COVER_BADGE_INLINE_STYLE}">'
+        f"{COVER_BADGE_TEXT}"
+        "</p>"
+    )
+    cover_xhtml_text = cover_xhtml_text.replace("</div>", f"{badge_markup}</div>", 1)
+
+    cover_page = epub.EpubHtml(
+        title="Cover",
+        file_name=cover_xhtml_relpath.as_posix(),
+        lang="en",
+    )
+    cover_page.content = cover_xhtml_text.encode("utf-8")
+    book.add_item(cover_page)
+    return cover_page
+
+
+def _resolve_cover_image(
     book_metadata: dict, ops_dir: Path
 ) -> tuple[bytes, str] | None:
-    """Read cover image bytes and filename from metadata when available."""
+    """Resolve cover image bytes and EPUB file name from metadata."""
     cover_data = book_metadata.get("cover")
     if not isinstance(cover_data, dict):
         return None
@@ -104,11 +242,13 @@ def _extract_cover_bytes_and_name(
     if not isinstance(image_src, str) or not image_src.strip():
         return None
 
-    cover_path = ops_dir / image_src
-    if not cover_path.exists():
-        raise FileNotFoundError(f"Cover image not found at {cover_path}")
+    image_relpath = Path(image_src.strip())
+    image_abs = ops_dir / image_relpath
+    if not image_abs.exists():
+        raise FileNotFoundError(f"Configured cover image not found: {image_abs}")
 
-    return cover_path.read_bytes(), cover_path.name
+    image_epub_path = (Path("contents") / Path("OPS") / image_relpath).as_posix()
+    return image_abs.read_bytes(), image_epub_path
 
 
 def _validate_chapter_and_get_paragraphs(
@@ -184,10 +324,20 @@ def build_epub_from_betrayal_short_json(
     book.set_language(language)
     book.add_author(author_name)
 
-    cover_data = _extract_cover_bytes_and_name(book_metadata, ops_dir)
-    if cover_data is not None:
-        cover_bytes, cover_file_name = cover_data
-        book.set_cover(cover_file_name, cover_bytes)
+    cover_image = _resolve_cover_image(book_metadata, ops_dir)
+    if cover_image is not None:
+        cover_bytes, cover_epub_path = cover_image
+        book.set_cover(cover_epub_path, cover_bytes)
+
+    cover_page: epub.EpubHtml | None = None
+    cover_xhtml_paths = _resolve_cover_xhtml_paths(book_metadata, ops_dir)
+    if cover_xhtml_paths is not None:
+        cover_xhtml_abs, cover_xhtml_relpath = cover_xhtml_paths
+        cover_page = copy_cover_xhtml_from_extracted(
+            book,
+            cover_xhtml_abs=cover_xhtml_abs,
+            cover_xhtml_relpath=cover_xhtml_relpath,
+        )
 
     nav_css = epub.EpubItem(
         uid="style_nav",
@@ -206,7 +356,10 @@ def build_epub_from_betrayal_short_json(
 
         chapter_title = chapter.get("chapter_title")
         if not isinstance(chapter_title, str) or not chapter_title.strip():
-            chapter_title = f"Chapter {chapter_index}"
+            if chapter_index == 1:
+                chapter_title = "Prologue"
+            else:
+                chapter_title = f"Chapter {chapter_index}"
 
         paragraph_texts = _validate_chapter_and_get_paragraphs(chapter, chapter_index)
         chapter_content = chapter_to_xhtml(chapter_title, paragraph_texts, language)
@@ -227,7 +380,10 @@ def build_epub_from_betrayal_short_json(
         )
 
     book.toc = tuple(epub_chapters)
-    book.spine = ["nav", *epub_chapters]
+    if cover_page is None:
+        book.spine = ["nav", *epub_chapters]
+    else:
+        book.spine = [cover_page, "nav", *epub_chapters]
     book.add_item(epub.EpubNcx())
     book.add_item(epub.EpubNav())
 
