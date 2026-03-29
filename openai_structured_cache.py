@@ -4,6 +4,7 @@ import hashlib
 import json
 import logging
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,8 @@ logger = logging.getLogger(__name__)
 
 CACHE_DIR_ENV_VAR = "OPENAI_STRUCTURED_CACHE_DIR"
 CACHE_DIR_DEFAULT = ROOT_DIR / ".cache" / "openai_structured"
+CACHE_TTL_DAYS_ENV_VAR = "OPENAI_STRUCTURED_CACHE_TTL_DAYS"
+CACHE_TTL_DAYS_DEFAULT = 30
 
 
 class StructuredOutputValidationError(Exception):
@@ -35,6 +38,27 @@ def resolve_cache_dir() -> Path:
     if configured_dir:
         return Path(configured_dir)
     return CACHE_DIR_DEFAULT
+
+
+def resolve_cache_ttl_days() -> int:
+    """Resolve cache expiration in days from environment or default value."""
+    raw_ttl_days = os.environ.get(CACHE_TTL_DAYS_ENV_VAR, str(CACHE_TTL_DAYS_DEFAULT))
+    try:
+        ttl_days = int(raw_ttl_days)
+    except ValueError as error:
+        raise ValueError(
+            f"{CACHE_TTL_DAYS_ENV_VAR} must be an integer. Got '{raw_ttl_days}'."
+        ) from error
+
+    if ttl_days <= 0:
+        raise ValueError(f"{CACHE_TTL_DAYS_ENV_VAR} must be greater than zero.")
+    return ttl_days
+
+
+def _is_cache_file_expired(cache_path: Path, ttl_days: int) -> bool:
+    """Return True when a cache file is older than configured TTL days."""
+    file_age_seconds = time.time() - cache_path.stat().st_mtime
+    return file_age_seconds > (ttl_days * 24 * 60 * 60)
 
 
 def hash_json(data: Any) -> str:
@@ -70,9 +94,16 @@ def _cache_path(cache_key: str, cache_dir: Path) -> Path:
 def load_cached_response(cache_key: str, cache_dir: Path | None = None) -> Any | None:
     """Load a cached response by key, returning None when not found."""
     effective_cache_dir = resolve_cache_dir() if cache_dir is None else cache_dir
+    ttl_days = resolve_cache_ttl_days()
     path = _cache_path(cache_key, effective_cache_dir)
     if not path.exists():
         logger.debug("cache miss key=%s path=%s", cache_key, path)
+        return None
+
+    if _is_cache_file_expired(path, ttl_days):
+        # Remove stale cache to avoid unbounded growth.
+        path.unlink()
+        logger.info("cache expired key=%s ttl_days=%d", cache_key, ttl_days)
         return None
 
     logger.info("cache hit key=%s", cache_key)

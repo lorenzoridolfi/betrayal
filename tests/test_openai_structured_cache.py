@@ -2,6 +2,8 @@
 
 import tempfile
 import unittest
+import os
+import time
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -139,6 +141,107 @@ class OpenAIStructuredCacheTests(unittest.TestCase):
         call_kwargs = create_mock.call_args.kwargs
         self.assertEqual(call_kwargs["response_format"]["type"], "json_schema")
         self.assertTrue(call_kwargs["response_format"]["json_schema"]["strict"])
+
+    def test_uses_cache_dir_from_environment_variable(self) -> None:
+        """Cache directory should resolve from OPENAI_STRUCTURED_CACHE_DIR env var."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            env_cache_dir = Path(temp_dir) / "env-cache"
+            with (
+                patch.dict(
+                    os.environ,
+                    {openai_structured_cache.CACHE_DIR_ENV_VAR: str(env_cache_dir)},
+                    clear=False,
+                ),
+                patch.object(
+                    openai_structured_cache, "_call_openai_once", return_value={"a": 11}
+                ) as call_mock,
+            ):
+                result = openai_structured_cache.call_openai_structured_cached(
+                    model="gpt-5-mini",
+                    system_prompt="sys",
+                    user_prompt="user",
+                    schema_name="schema",
+                    schema=SIMPLE_SCHEMA,
+                    input_payload={"x": 8},
+                )
+
+            self.assertEqual(result, {"a": 11})
+            self.assertEqual(call_mock.call_count, 1)
+            self.assertEqual(len(list(env_cache_dir.glob("*.json"))), 1)
+
+    def test_raises_after_max_attempts_on_retryable_error(self) -> None:
+        """Retry loop should re-raise after max attempts is exhausted."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_dir = Path(temp_dir) / "cache"
+            with patch.object(
+                openai_structured_cache,
+                "_call_openai_once",
+                side_effect=TimeoutError("still failing"),
+            ) as call_mock:
+                with self.assertRaises(TimeoutError):
+                    openai_structured_cache.call_openai_structured_cached(
+                        model="gpt-5-mini",
+                        system_prompt="sys",
+                        user_prompt="user",
+                        schema_name="schema",
+                        schema=SIMPLE_SCHEMA,
+                        input_payload={"x": 9},
+                        cache_dir=cache_dir,
+                        max_attempts=2,
+                    )
+
+            self.assertEqual(call_mock.call_count, 2)
+            self.assertEqual(len(list(cache_dir.glob("*.json"))), 0)
+
+    def test_cache_expiration_uses_ttl_days(self) -> None:
+        """Expired cache file should be treated as miss and refreshed."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_dir = Path(temp_dir) / "cache"
+            cache_key = openai_structured_cache.build_cache_key(
+                model="gpt-5-mini",
+                prompt="sys\n\nuser",
+                schema_name="schema",
+                schema=SIMPLE_SCHEMA,
+                input_payload={"x": 10},
+            )
+            cache_path = openai_structured_cache.save_cached_response(
+                cache_key, {"a": 99}, cache_dir=cache_dir
+            )
+            old_timestamp = time.time() - (31 * 24 * 60 * 60)
+            os.utime(cache_path, (old_timestamp, old_timestamp))
+
+            with (
+                patch.dict(
+                    os.environ,
+                    {openai_structured_cache.CACHE_TTL_DAYS_ENV_VAR: "30"},
+                    clear=False,
+                ),
+                patch.object(
+                    openai_structured_cache, "_call_openai_once", return_value={"a": 5}
+                ) as call_mock,
+            ):
+                result = openai_structured_cache.call_openai_structured_cached(
+                    model="gpt-5-mini",
+                    system_prompt="sys",
+                    user_prompt="user",
+                    schema_name="schema",
+                    schema=SIMPLE_SCHEMA,
+                    input_payload={"x": 10},
+                    cache_dir=cache_dir,
+                )
+
+            self.assertEqual(result, {"a": 5})
+            self.assertEqual(call_mock.call_count, 1)
+
+    def test_invalid_cache_ttl_value_fails_fast(self) -> None:
+        """Invalid cache TTL value should raise ValueError clearly."""
+        with patch.dict(
+            os.environ,
+            {openai_structured_cache.CACHE_TTL_DAYS_ENV_VAR: "abc"},
+            clear=False,
+        ):
+            with self.assertRaises(ValueError):
+                openai_structured_cache.resolve_cache_ttl_days()
 
 
 if __name__ == "__main__":

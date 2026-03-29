@@ -40,6 +40,9 @@ SUMMARY_RESPONSE_SCHEMA = {
     "required": ["summary_paragraphs"],
 }
 
+REQUIRED_BOOK_METADATA_KEYS = ("title", "subtitle", "author_line", "cover")
+REQUIRED_COVER_KEYS = ("source_file", "image_src", "image_alt")
+
 
 def resolve_model_name() -> str:
     """Resolve the summarization model from environment or default constant."""
@@ -94,6 +97,41 @@ def build_chapter_source_text(chapter: dict) -> str:
     return "\n\n".join(paragraph_texts)
 
 
+def validate_book_metadata(book_metadata: dict) -> None:
+    """Validate minimal book metadata fields required for output propagation."""
+    for key in REQUIRED_BOOK_METADATA_KEYS:
+        if key not in book_metadata:
+            raise ValueError(f"Input book_metadata missing required key '{key}'.")
+
+    for key in ("title", "subtitle", "author_line"):
+        value = book_metadata.get(key)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"book_metadata.{key} must be a non-empty string.")
+
+    cover_data = book_metadata.get("cover")
+    if not isinstance(cover_data, dict):
+        raise ValueError("book_metadata.cover must be an object.")
+
+    for key in REQUIRED_COVER_KEYS:
+        value = cover_data.get(key)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"book_metadata.cover.{key} must be a non-empty string.")
+
+
+def prepare_chapters_for_summarization(
+    effective_examples: list[dict],
+) -> list[tuple[dict, str]]:
+    """Validate all chapters up front and return chapter/source-text pairs."""
+    prepared_chapters: list[tuple[dict, str]] = []
+    for chapter_index, chapter in enumerate(effective_examples, start=1):
+        if not isinstance(chapter, dict):
+            raise ValueError(f"Chapter at index {chapter_index} must be an object.")
+
+        chapter_source_text = build_chapter_source_text(chapter)
+        prepared_chapters.append((chapter, chapter_source_text))
+    return prepared_chapters
+
+
 def build_user_prompt(base_prompt: str, chapter_source_text: str) -> str:
     """Build chapter prompt from reference guidance plus minimal JSON contract."""
     return (
@@ -108,12 +146,12 @@ def build_user_prompt(base_prompt: str, chapter_source_text: str) -> str:
 def summarize_chapter(
     chapter: dict,
     *,
+    chapter_source_text: str,
     base_prompt: str,
     model_name: str,
     timeout_seconds: int,
 ) -> list[dict[str, object]]:
     """Summarize one chapter into multiple indexed paragraph objects."""
-    chapter_source_text = build_chapter_source_text(chapter)
     user_prompt = build_user_prompt(base_prompt, chapter_source_text)
     summary_data = call_openai_structured_cached(
         model=model_name,
@@ -179,6 +217,7 @@ def main() -> None:
     examples = data.get("examples")
     if not isinstance(book_metadata, dict):
         raise ValueError("Input JSON must contain object key 'book_metadata'.")
+    validate_book_metadata(book_metadata)
     if not isinstance(examples, list):
         raise ValueError("Input JSON must contain list key 'examples'.")
 
@@ -191,12 +230,17 @@ def main() -> None:
     )
 
     base_prompt = read_text_file(PROMPT_FILE)
-    summarized_examples: list[dict[str, object]] = []
-    total_chapters_to_process = len(effective_examples)
-    for chapter_index, chapter in enumerate(effective_examples, start=1):
-        if not isinstance(chapter, dict):
-            raise ValueError(f"Chapter at index {chapter_index} must be an object.")
+    prepared_chapters = prepare_chapters_for_summarization(effective_examples)
+    logger.info(
+        "Validated all chapters before LLM calls processing_chapters=%d",
+        len(prepared_chapters),
+    )
 
+    summarized_examples: list[dict[str, object]] = []
+    total_chapters_to_process = len(prepared_chapters)
+    for chapter_index, (chapter, chapter_source_text) in enumerate(
+        prepared_chapters, start=1
+    ):
         source_file = chapter.get("source_file")
         logger.info(
             "[%d/%d] Summarizing source_file=%s",
@@ -206,6 +250,7 @@ def main() -> None:
         )
         summarized_paragraphs = summarize_chapter(
             chapter,
+            chapter_source_text=chapter_source_text,
             base_prompt=base_prompt,
             model_name=model_name,
             timeout_seconds=timeout_seconds,
