@@ -17,6 +17,8 @@ EXPECTED_KEYS = {
     "chapter_title",
     "paragraphs",
 }
+REQUIRED_BOOK_METADATA_KEYS = {"title", "subtitle", "author_line", "cover"}
+REQUIRED_COVER_KEYS = {"source_file", "image_src", "image_alt"}
 logger = get_logger(__name__)
 
 
@@ -34,6 +36,37 @@ def validate_and_count(data: dict) -> dict:
     global_errors: list[str] = []
     chapters_report: list[dict] = []
     total_token_count = 0
+
+    book_metadata = data.get("book_metadata")
+    if not isinstance(book_metadata, dict):
+        global_errors.append("Root key 'book_metadata' must be an object.")
+    else:
+        metadata_keys = set(book_metadata.keys())
+        missing_metadata_keys = sorted(REQUIRED_BOOK_METADATA_KEYS - metadata_keys)
+        if missing_metadata_keys:
+            global_errors.append(f"book_metadata missing keys: {missing_metadata_keys}")
+
+        for key in ("title", "subtitle", "author_line"):
+            value = book_metadata.get(key)
+            if not isinstance(value, str) or not value.strip():
+                global_errors.append(f"book_metadata.{key} must be a non-empty string.")
+
+        cover_data = book_metadata.get("cover")
+        if not isinstance(cover_data, dict):
+            global_errors.append("book_metadata.cover must be an object.")
+        else:
+            cover_keys = set(cover_data.keys())
+            missing_cover_keys = sorted(REQUIRED_COVER_KEYS - cover_keys)
+            if missing_cover_keys:
+                global_errors.append(
+                    f"book_metadata.cover missing keys: {missing_cover_keys}"
+                )
+            for key in REQUIRED_COVER_KEYS:
+                value = cover_data.get(key)
+                if not isinstance(value, str) or not value.strip():
+                    global_errors.append(
+                        f"book_metadata.cover.{key} must be a non-empty string."
+                    )
 
     examples = data.get("examples")
     if not isinstance(examples, list):

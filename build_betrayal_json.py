@@ -10,12 +10,20 @@ from project_paths import DATA_DIR, ROOT_DIR
 
 
 CONTENTS_FILE = ROOT_DIR / "contents.txt"
+BOOK_COVER_FILE = ROOT_DIR / "contents" / "OPS" / "001-Cover.xhtml"
 OUTPUT_FILE = DATA_DIR / "betrayal.json"
 XHTML_NS = "{http://www.w3.org/1999/xhtml}"
 P_TAG = f"{XHTML_NS}p"
 SUP_TAG = f"{XHTML_NS}sup"
 SPAN_TAG = f"{XHTML_NS}span"
+IMG_TAG = f"{XHTML_NS}img"
 SEPARATOR_PATTERN = re.compile(r"^\*\s*\*\s*\*$")
+AUTHOR_LINE_PATTERN = re.compile(r"top line reads [‘']([^’']+)[’']", re.IGNORECASE)
+TITLE_PATTERN = re.compile(
+    r"followed by the title,\s*([^.,]+?)(?:\s+in\s+[^.]+)?\.",
+    re.IGNORECASE,
+)
+SUBTITLE_PATTERN = re.compile(r"subtitle reads [‘']([^’']+)[’']", re.IGNORECASE)
 logger = get_logger(__name__)
 
 
@@ -127,6 +135,46 @@ def load_paths(contents_file: Path) -> list[Path]:
     return paths
 
 
+def _extract_alt_fragment(pattern: re.Pattern[str], alt_text: str, label: str) -> str:
+    """Extract one metadata fragment from cover alt text or fail fast."""
+    match = pattern.search(alt_text)
+    if match is None:
+        raise ValueError(f"Could not extract {label} from cover alt text.")
+    value = clean_text(match.group(1))
+    if not value:
+        raise ValueError(f"Extracted empty {label} from cover alt text.")
+    return value
+
+
+def parse_cover_metadata(cover_file: Path) -> dict:
+    """Parse cover XHTML and return minimal book metadata."""
+    tree = ET.parse(cover_file)
+    root = tree.getroot()
+    cover_image = root.find(f".//{IMG_TAG}")
+    if cover_image is None:
+        raise ValueError(f"No <img> found in cover file: {cover_file}")
+
+    image_src = cover_image.attrib.get("src")
+    image_alt = clean_text(cover_image.attrib.get("alt", ""))
+    if not image_src:
+        raise ValueError("Cover image 'src' is missing.")
+    if not image_alt:
+        raise ValueError("Cover image 'alt' is missing.")
+
+    return {
+        "title": _extract_alt_fragment(TITLE_PATTERN, image_alt, "title"),
+        "subtitle": _extract_alt_fragment(SUBTITLE_PATTERN, image_alt, "subtitle"),
+        "author_line": _extract_alt_fragment(
+            AUTHOR_LINE_PATTERN, image_alt, "author_line"
+        ),
+        "cover": {
+            "source_file": str(cover_file.relative_to(ROOT_DIR)),
+            "image_src": image_src,
+            "image_alt": image_alt,
+        },
+    }
+
+
 def main() -> None:
     """Generate `data/betrayal.json` from source chapter files."""
     effective_log_level = configure_logging()
@@ -135,8 +183,10 @@ def main() -> None:
     logger.info("Reading chapter list from %s", CONTENTS_FILE)
     chapter_paths = load_paths(CONTENTS_FILE)
     logger.info("Found %d chapter source files", len(chapter_paths))
+    logger.info("Parsing cover metadata from %s", BOOK_COVER_FILE)
+    book_metadata = parse_cover_metadata(BOOK_COVER_FILE)
     examples = [parse_file(path) for path in chapter_paths]
-    payload = {"examples": examples}
+    payload = {"book_metadata": book_metadata, "examples": examples}
 
     with OUTPUT_FILE.open("w", encoding="utf-8") as file:
         json.dump(payload, file, ensure_ascii=False, indent=2)

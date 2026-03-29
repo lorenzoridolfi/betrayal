@@ -1,4 +1,14 @@
 {
+  "book_metadata": {
+    "title": "Betrayal",
+    "subtitle": "Power, deceit, and the fight for the future of the Royal family",
+    "author_line": "From the number one bestselling author Tom Bower",
+    "cover": {
+      "source_file": "contents/OPS/001-Cover.xhtml",
+      "image_src": "images/cover.jpg",
+      "image_alt": "A white background, with an image of Meghan Markle and Prince Harry cut diagonally. A roundel features with an image of the Royal Family and text that reads ‘author of the explosive Royal biography Revenge’. A quote from The Sunday Times in the bottom right hand corner reads ‘A master of intricacies’. The top line reads ‘From the number one bestselling author Tom Bower’, followed by the title, Betrayal in gold. Beneath, in black, the subtitle reads ‘Power, deceit, and the fight for the future of the Royal family’."
+    }
+  },
   "examples": [
     {
       "source_file": "008-Prologue.xhtml",
