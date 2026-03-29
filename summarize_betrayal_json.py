@@ -1,4 +1,4 @@
-"""Summarize `data/betrayal.json` into `data/betrayal_short.json` chapter by chapter."""
+"""Summarize `data/betrayal.json` chapter by chapter into a JSON output file."""
 
 import argparse
 import json
@@ -204,6 +204,22 @@ def resolve_effective_examples(
     return examples[:chapter_limit]
 
 
+def resolve_output_file_path(*, draft_mode: bool, chapter_limit: int | None) -> Path:
+    """Resolve output file path and encode active CLI options in filename."""
+    suffix_parts: list[str] = []
+    if draft_mode:
+        suffix_parts.append("draft")
+    if chapter_limit is not None:
+        suffix_parts.append(f"limit_{chapter_limit}")
+
+    if not suffix_parts:
+        return OUTPUT_FILE
+
+    suffix_token = "_".join(suffix_parts)
+    resolved_file_name = f"{OUTPUT_FILE.stem}_{suffix_token}{OUTPUT_FILE.suffix}"
+    return OUTPUT_FILE.with_name(resolved_file_name)
+
+
 def main() -> None:
     """Generate summarized chapter JSON and preserve book metadata."""
     parser = argparse.ArgumentParser()
@@ -230,10 +246,14 @@ def main() -> None:
 
     model_name = resolve_model_name(draft_mode=args.draft)
     timeout_seconds = resolve_timeout_seconds()
+    output_file = resolve_output_file_path(
+        draft_mode=args.draft,
+        chapter_limit=args.chapter_limit,
+    )
     logger.info(
         "Summarizing input=%s output=%s model=%s draft_mode=%s timeout_seconds=%d",
         INPUT_FILE,
-        OUTPUT_FILE,
+        output_file,
         model_name,
         args.draft,
         timeout_seconds,
@@ -324,10 +344,10 @@ def main() -> None:
         "book_metadata": book_metadata,
         "examples": summarized_examples,
     }
-    write_json(OUTPUT_FILE, output_payload)
+    write_json(output_file, output_payload)
     logger.info(
         "Generated %s with %d summarized chapters",
-        OUTPUT_FILE.name,
+        output_file.name,
         len(summarized_examples),
     )
 

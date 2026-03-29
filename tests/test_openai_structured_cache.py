@@ -115,6 +115,24 @@ class OpenAIStructuredCacheTests(unittest.TestCase):
         )
         self.assertEqual(key_1, key_2)
 
+    def test_build_cache_key_changes_when_model_changes(self) -> None:
+        """Different model names should produce different cache keys."""
+        mini_key = openai_structured_cache.build_cache_key(
+            model="gpt-5-mini",
+            prompt="sys\n\nuser",
+            schema_name="schema",
+            schema=SIMPLE_SCHEMA,
+            input_payload={"x": 1},
+        )
+        full_key = openai_structured_cache.build_cache_key(
+            model="gpt-5.4",
+            prompt="sys\n\nuser",
+            schema_name="schema",
+            schema=SIMPLE_SCHEMA,
+            input_payload={"x": 1},
+        )
+        self.assertNotEqual(mini_key, full_key)
+
     def test_call_openai_once_enforces_structured_contract(self) -> None:
         """Single call should use strict json_schema and validate response."""
         fake_response = SimpleNamespace(

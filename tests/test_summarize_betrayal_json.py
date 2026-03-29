@@ -35,6 +35,33 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
 
         self.assertEqual(model_name, summarize_betrayal_json.SUMMARY_MODEL_DRAFT)
 
+    def test_resolve_output_file_path_default_keeps_base_name(self) -> None:
+        """Output file resolver should keep base filename when no flags are active."""
+        output_path = summarize_betrayal_json.resolve_output_file_path(
+            draft_mode=False,
+            chapter_limit=None,
+        )
+        self.assertEqual(output_path, summarize_betrayal_json.OUTPUT_FILE)
+
+    def test_resolve_output_file_path_encodes_active_flags_in_file_name(self) -> None:
+        """Output file resolver should encode draft and limit options in filename."""
+        draft_path = summarize_betrayal_json.resolve_output_file_path(
+            draft_mode=True,
+            chapter_limit=None,
+        )
+        limit_path = summarize_betrayal_json.resolve_output_file_path(
+            draft_mode=False,
+            chapter_limit=3,
+        )
+        combined_path = summarize_betrayal_json.resolve_output_file_path(
+            draft_mode=True,
+            chapter_limit=3,
+        )
+
+        self.assertEqual(draft_path.name, "betrayal_short_draft.json")
+        self.assertEqual(limit_path.name, "betrayal_short_limit_3.json")
+        self.assertEqual(combined_path.name, "betrayal_short_draft_limit_3.json")
+
     def test_format_duration_hms_always_includes_hours_minutes_seconds(self) -> None:
         """Duration formatter should produce a stable H/M/S output shape."""
         self.assertEqual(summarize_betrayal_json.format_duration_hms(5), "0h 00m 05s")
@@ -202,7 +229,8 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             ):
                 summarize_betrayal_json.main()
 
-            written = json.loads(output_file.read_text(encoding="utf-8"))
+            resolved_output_file = output_file.with_name("betrayal_short_limit_1.json")
+            written = json.loads(resolved_output_file.read_text(encoding="utf-8"))
             self.assertEqual(len(written["examples"]), 1)
             self.assertEqual(
                 written["examples"][0]["source_file"], "009-Chapter_1.xhtml"
@@ -757,6 +785,8 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                 llm_mock.call_args.kwargs["model"],
                 summarize_betrayal_json.SUMMARY_MODEL_DRAFT,
             )
+            draft_output_file = output_file.with_name("betrayal_short_draft.json")
+            self.assertTrue(draft_output_file.exists())
 
     def test_main_fails_on_invalid_timeout_env_before_llm_call(self) -> None:
         """Non-integer timeout environment value should fail fast."""
