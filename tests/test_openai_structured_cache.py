@@ -243,6 +243,31 @@ class OpenAIStructuredCacheTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 openai_structured_cache.resolve_cache_ttl_days()
 
+    def test_default_retry_attempts_is_six_when_not_overridden(self) -> None:
+        """Default retry budget should be six attempts for all LLM calls."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            cache_dir = Path(temp_dir) / "cache"
+            with patch.object(
+                openai_structured_cache,
+                "_call_openai_once",
+                side_effect=TimeoutError("always failing"),
+            ) as call_mock:
+                with self.assertRaises(TimeoutError):
+                    openai_structured_cache.call_openai_structured_cached(
+                        model="gpt-5-mini",
+                        system_prompt="sys",
+                        user_prompt="user",
+                        schema_name="schema",
+                        schema=SIMPLE_SCHEMA,
+                        input_payload={"x": 11},
+                        cache_dir=cache_dir,
+                    )
+
+            self.assertGreater(openai_structured_cache.MAX_ATTEMPTS_DEFAULT, 0)
+            self.assertEqual(
+                call_mock.call_count, openai_structured_cache.MAX_ATTEMPTS_DEFAULT
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

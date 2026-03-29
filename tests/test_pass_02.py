@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from jsonschema import ValidationError
 from project_paths import DATA_DIR, INGEST_DIR, PROMPTS_DIR, SCHEMAS_DIR
 
 
@@ -355,7 +356,7 @@ class Pass02Tests(unittest.TestCase):
                     return_value={"bad": "payload"},
                 ),
             ):
-                with self.assertRaises(Exception):
+                with self.assertRaises(ValidationError):
                     self._run_pass_02(
                         book_file=book_file,
                         classification_file=class_file,
@@ -508,7 +509,7 @@ class Pass02Tests(unittest.TestCase):
                     return_value=_valid_pass_02_item("betrayal-001", 1, 1),
                 ),
             ):
-                with self.assertRaises(Exception):
+                with self.assertRaises(ValidationError):
                     self._run_pass_02(
                         book_file=book_file,
                         classification_file=class_file,

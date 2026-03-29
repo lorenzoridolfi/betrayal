@@ -26,6 +26,7 @@ CACHE_DIR_ENV_VAR = "OPENAI_STRUCTURED_CACHE_DIR"
 CACHE_DIR_DEFAULT = ROOT_DIR / ".cache" / "openai_structured"
 CACHE_TTL_DAYS_ENV_VAR = "OPENAI_STRUCTURED_CACHE_TTL_DAYS"
 CACHE_TTL_DAYS_DEFAULT = 30
+MAX_ATTEMPTS_DEFAULT = 6
 
 
 class StructuredOutputValidationError(Exception):
@@ -183,7 +184,7 @@ def call_openai_structured_cached(
     schema: dict[str, Any],
     input_payload: Any,
     timeout_seconds: int = 240,
-    max_attempts: int = 3,
+    max_attempts: int = MAX_ATTEMPTS_DEFAULT,
     cache_dir: Path | None = None,
 ) -> Any:
     """Call OpenAI structured output with deterministic cache and retries."""

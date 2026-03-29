@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from jsonschema import ValidationError
 from project_paths import DATA_DIR, INGEST_DIR
 
 
@@ -103,7 +104,7 @@ class Pass015Tests(unittest.TestCase):
                 input_file, {"book_id": "betrayal", "chapters": [{"bad": "data"}]}
             )
 
-            with self.assertRaises(Exception):
+            with self.assertRaises(ValidationError):
                 self._run_pass_01_5(input_file=input_file, output_file=output_file)
 
 

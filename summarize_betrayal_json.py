@@ -13,7 +13,7 @@ from ingest.pipeline_common import (
     write_json,
 )
 from ingest.pipeline_params import TIMEOUT_SECONDS_DEFAULT
-from openai_structured_cache import call_openai_structured_cached
+from openai_structured_cache import MAX_ATTEMPTS_DEFAULT, call_openai_structured_cached
 from project_paths import DATA_DIR, PROMPTS_DIR
 
 
@@ -165,6 +165,7 @@ def summarize_chapter(
             "chapter_source_text": chapter_source_text,
         },
         timeout_seconds=timeout_seconds,
+        max_attempts=MAX_ATTEMPTS_DEFAULT,
     )
     validate_with_schema(summary_data, SUMMARY_RESPONSE_SCHEMA)
 

@@ -80,7 +80,7 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
                             "Summary paragraph two.",
                         ]
                     },
-                ),
+                ) as llm_mock,
             ):
                 summarize_betrayal_json.main()
 
@@ -91,6 +91,10 @@ class SummarizeBetrayalJsonTests(unittest.TestCase):
             self.assertEqual(len(paragraphs), 2)
             self.assertEqual(paragraphs[0]["paragraph_index"], 1)
             self.assertEqual(paragraphs[1]["paragraph_index"], 2)
+            self.assertEqual(
+                llm_mock.call_args.kwargs["max_attempts"],
+                summarize_betrayal_json.MAX_ATTEMPTS_DEFAULT,
+            )
 
     def test_main_chapter_limit_summarizes_only_first_n_chapters(self) -> None:
         """Chapter limit should cap summarization to the first N chapters."""

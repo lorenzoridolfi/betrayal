@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from jinja2 import UndefinedError
+from jsonschema import ValidationError
 from project_paths import INGEST_DIR
 
 
@@ -69,7 +70,7 @@ class PipelineCommonTests(unittest.TestCase):
             "required": ["a"],
             "additionalProperties": False,
         }
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidationError):
             pipeline_common.validate_with_schema({"a": "bad"}, schema)
 
     def test_chapter_id_from_order_is_stable(self) -> None:
