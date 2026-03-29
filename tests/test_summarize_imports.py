@@ -12,6 +12,11 @@ class SummarizeImportsTests(unittest.TestCase):
         module = importlib.import_module("summarize_betrayal_json")
         self.assertTrue(callable(getattr(module, "main", None)))
 
+    def test_import_eta_estimator_module(self) -> None:
+        """eta_estimator should import and expose EtaEstimator class."""
+        module = importlib.import_module("eta_estimator")
+        self.assertTrue(callable(getattr(module, "EtaEstimator", None)))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -14,7 +14,7 @@ from ingest.pipeline_common import (
     validate_with_schema,
     write_json,
 )
-from ingest.pipeline_params import TIMEOUT_SECONDS_DEFAULT
+from ingest.pipeline_params import MODEL_DEFAULT, TIMEOUT_SECONDS_DEFAULT
 from openai_structured_cache import MAX_ATTEMPTS_DEFAULT, call_openai_structured_cached
 from project_paths import DATA_DIR, PROMPTS_DIR
 
@@ -27,6 +27,7 @@ PROMPT_FILE = PROMPTS_DIR / "summarize.txt"
 SUMMARY_MODEL_ENV_VAR = "SUMMARY_MODEL"
 SUMMARY_TIMEOUT_SECONDS_ENV_VAR = "SUMMARY_TIMEOUT_SECONDS"
 SUMMARY_MODEL_DEFAULT = "gpt-5.4"
+SUMMARY_MODEL_DRAFT = MODEL_DEFAULT
 
 SUMMARY_RESPONSE_SCHEMA = {
     "type": "object",
@@ -46,8 +47,14 @@ REQUIRED_BOOK_METADATA_KEYS = ("title", "subtitle", "author_line", "cover")
 REQUIRED_COVER_KEYS = ("source_file", "image_src", "image_alt")
 
 
-def resolve_model_name() -> str:
-    """Resolve the summarization model from environment or default constant."""
+def resolve_model_name(*, draft_mode: bool) -> str:
+    """Resolve summarization model from draft flag, environment, or default."""
+    if draft_mode:
+        draft_model_name = SUMMARY_MODEL_DRAFT.strip()
+        if not draft_model_name:
+            raise ValueError("Resolved draft summary model name is empty.")
+        return draft_model_name
+
     model_name = os.environ.get(SUMMARY_MODEL_ENV_VAR, SUMMARY_MODEL_DEFAULT).strip()
     if not model_name:
         raise ValueError("Resolved summary model name is empty.")
@@ -201,6 +208,14 @@ def main() -> None:
     """Generate summarized chapter JSON and preserve book metadata."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--draft",
+        action="store_true",
+        help=(
+            "Use low-cost draft model for summarization. "
+            f"Forces model={SUMMARY_MODEL_DRAFT}."
+        ),
+    )
+    parser.add_argument(
         "--chapter-limit",
         type=int,
         default=None,
@@ -213,13 +228,14 @@ def main() -> None:
         "Starting summarize_betrayal_json with LOG_LEVEL=%s", effective_log_level
     )
 
-    model_name = resolve_model_name()
+    model_name = resolve_model_name(draft_mode=args.draft)
     timeout_seconds = resolve_timeout_seconds()
     logger.info(
-        "Summarizing input=%s output=%s model=%s timeout_seconds=%d",
+        "Summarizing input=%s output=%s model=%s draft_mode=%s timeout_seconds=%d",
         INPUT_FILE,
         OUTPUT_FILE,
         model_name,
+        args.draft,
         timeout_seconds,
     )
 
