@@ -1,0 +1,121 @@
+{
+  "book_metadata": {
+    "title": "Betrayal",
+    "subtitle": "Power, deceit, and the fight for the future of the Royal family",
+    "author_line": "From the number one bestselling author Tom Bower",
+    "cover": {
+      "source_file": "contents/OPS/001-Cover.xhtml",
+      "image_src": "images/cover.jpg",
+      "image_alt": "A white background, with an image of Meghan Markle and Prince Harry cut diagonally. A roundel features with an image of the Royal Family and text that reads ‘author of the explosive Royal biography Revenge’. A quote from The Sunday Times in the bottom right hand corner reads ‘A master of intricacies’. The top line reads ‘From the number one bestselling author Tom Bower’, followed by the title, Betrayal in gold. Beneath, in black, the subtitle reads ‘Power, deceit, and the fight for the future of the Royal family’."
+    }
+  },
+  "examples": [
+    {
+      "source_file": "008-Prologue.xhtml",
+      "chapter_type": "prologue",
+      "chapter_number": null,
+      "chapter_label": null,
+      "chapter_title": null,
+      "paragraphs": [
+        {
+          "paragraph_index": 1,
+          "text": "Public interest in Harry and Meghan, the Duke and Duchess of Sussex, remains intense but divided. People are less united by sympathy or criticism than by curiosity about whether the couple will thrive or merely survive. Commentators trade predictions of divorce, debt, or disaster, and some mock Harry as having become Meghan's ‘‘spare.’’ In a Harper's Bazaar Christmas 2025 interview, Meghan appeared to enjoy his devotion. Since their 2020 move to California, many predicted the marriage would fail, imagining Harry longing for Britain or Meghan seeking greater wealth and status abroad. So far, those doomsday scenarios have not come true, though weekly publicity keeps speculation alive."
+        },
+        {
+          "paragraph_index": 2,
+          "text": "Meghan has driven much of the story through constant public visibility. She posts photos and videos and times appearances for maximum media effect. Five years ago my book Revenge traced her ascent, showing how she left people behind to win fame and how she reshaped past events to suit her public narrative. That shaping reached a peak in her 2021 interview with Oprah Winfrey. Now based in California, she often pursues projects that profit from the version of herself she promotes, and she appears willing to appear apart from Harry unless a joint outing boosts her profile."
+        },
+        {
+          "paragraph_index": 3,
+          "text": "Harry has grown increasingly strained trying to protect his princely status. He has not publicly taken responsibility for the damage caused by his memoir Spare and by candid interviews, and he is praised for charity work while criticized for using his royal birthright for lucrative deals. Isolated from Britain, his public role and philanthropic work look thinner. With the Royal Family weakened by scandal and illness, the Sussexes and the monarchy face a crossroads. New disclosures about their pre Megxit lives and the events of the past five years make 2026 feel like a make or break year. The book begins in the week of Queen Elizabeth II's death in September 2022."
+        }
+      ]
+    },
+    {
+      "source_file": "009-Chapter_1.xhtml",
+      "chapter_type": "chapter",
+      "chapter_number": 1,
+      "chapter_label": "CHAPTER 1",
+      "chapter_title": "Manchester, 5th September 2022",
+      "paragraphs": [
+        {
+          "paragraph_index": 1,
+          "text": "During the final run-up to the One Young World conference in Manchester, Ella Robertson read Meghan Markle’s proposed speech on the autocue and muttered, “She’s fucked it.” Meghan was due to address 2,300 young leaders on 5 September 2022, but her draft speech focused on herself, repeating “I” nearly fifty times in ten minutes. One Young World, founded in 2010, brings young leaders together to talk about global challenges, and the Robertsons feared Meghan’s personal narrative would overshadow the charity."
+        },
+        {
+          "paragraph_index": 2,
+          "text": "Megxit and recent tensions with the royal household made the invitation risky. The Sussexes had planned a short UK trip billed “Compassion in Action”: Manchester, then Düsseldorf for the Invictus Games, then London for the WellChild awards. While many older Britons felt anger toward Harry and Meghan, younger people treated them as heroes, and the Robertsons hoped the audience would welcome Meghan."
+        },
+        {
+          "paragraph_index": 3,
+          "text": "Ella Robertson sought firm reassurances from the Sussex staff that nothing explosive would distract from the conference. James Holt, the couple’s chief of staff, assured her nothing was imminent, but he did not mention Meghan’s podcast series or a forthcoming interview with The Cut. Palace and PR priorities were increasingly about maintaining celebrity while promoting humanitarian causes."
+        },
+        {
+          "paragraph_index": 4,
+          "text": "Meghan had agreed to keep her Manchester remarks on empowering women and gender equality and to avoid speaking about herself or wearing conspicuous clothes. The Robertsons’ caution drew on past episodes: Misan Harriman had advised they book Meghan for Dublin in 2014, seeing future stardom, but by 2016 in Ottawa Meghan pressed for prominence, sought VVIP billing, and left without giving a scheduled speech after failing to get what she wanted."
+        },
+        {
+          "paragraph_index": 5,
+          "text": "Negotiations to secure Meghan for the Royal Albert Hall in October 2019 were chaotic. Palace aides sent mixed signals and One Young World ultimately underwrote a £200,000 scholarship for Meghan to mention. When Ella met Meghan in Windsor after Archie’s birth, Meghan seemed traumatised yet professional. She surprised the audience by bringing Harry as a guest, and the couple featured in a BBC film about Invictus."
+        },
+        {
+          "paragraph_index": 6,
+          "text": "Public sympathy for Meghan grew in some quarters: seventy-two female MPs voiced solidarity, and prominent American figures praised her. Soon after, the Sussexes left for Vancouver Island and then California. In Los Angeles, Meghan’s in-house media team—Beth Herlihy, Miranda Barbot and Ashley Hansen—alongside outside PR Keleigh Thomas Morgan, became central to shaping coverage and preparing for projects like Harry’s memoir and Meghan’s podcast."
+        },
+        {
+          "paragraph_index": 7,
+          "text": "Ashley Hansen described herself as leading the Sussexes’ PR strategy and ran a tight media operation. She and her team monitored outlets constantly and expected hostile British coverage. Meghan pursued high-profile placements, asking Vogue editor Edward Enninful for a cover ahead of Manchester, a request that strained relations when he had other plans for the issue."
+        },
+        {
+          "paragraph_index": 8,
+          "text": "For Manchester, Hansen imposed strict controls: tight ticketing, no journalists inside the hall, no spectators outside, and access limited to trusted allies such as Omid Scobie and photographer Misan Harriman, whose images were to be published selectively. Organizers criticized Meghan’s handlers and their choices. Harry felt abandoned days before the event when the Home Office would not provide armed protection for their UK appearances."
+        },
+        {
+          "paragraph_index": 9,
+          "text": "On the day, after makeup by Charlotte Tilbury and a guarded arrival, Meghan walked on to Bridgewater Hall in a red dress and, instead of the advertised theme of ethical leadership, delivered a speech that centered on her own rise and praised One Young World for seeing in her what she wanted to see in herself. Ella Robertson and other organizers were angered by the self-focused remarks and by the couple’s hurried departure to catch a train. The Sussexes then flew to Düsseldorf for Invictus, where they received a ceremonial welcome, and Harry later returned to London to host the WellChild awards, while tensions with the palace and the wider media continued to simmer."
+        }
+      ]
+    },
+    {
+      "source_file": "010-Chapter_2.xhtml",
+      "chapter_type": "chapter",
+      "chapter_number": 2,
+      "chapter_label": "CHAPTER 2",
+      "chapter_title": "Global Celebrity",
+      "paragraphs": [
+        {
+          "paragraph_index": 1,
+          "text": "They met on a blind date in July 2016 at Wimbledon. Meghan, a 34-year-old actress facing the end of her Suits role and a breakup, later said she felt lucky to have met Harry. Her life changed quickly: she considered freezing her eggs before the relationship and soon became engaged to a member of the royal family."
+        },
+        {
+          "paragraph_index": 2,
+          "text": "After finding Harry through profiles and Google, she called to arrange a second meeting and accepted an invitation to join him on safari in Botswana. Over several days in the bush she listened to his troubles and offered sympathy in ways his previous partner, Cressida Bonas, had not. Their bond deepened rapidly and they became mutually committed."
+        },
+        {
+          "paragraph_index": 3,
+          "text": "Meghan encouraged Harry’s belief that his emotional pain and family history mattered more than inconvenient facts, embracing ideas of generational trauma. Palace insiders soon whispered that she had ‘found a meal ticket,’ a suggestion that angered Harry and deepened his loyalty to her."
+        },
+        {
+          "paragraph_index": 4,
+          "text": "Harry complained that the royal hierarchy had controlled and imprisoned him for thirty years and left him the unloved ‘spare.’ He felt no one understood his need for an identity beyond that role. At the same time the Palace moved to prepare Meghan for royal life and the limits it would impose."
+        },
+        {
+          "paragraph_index": 5,
+          "text": "Edward Lane Fox, Harry’s private secretary, gave Meghan a thirty-point dossier on royal duties and patronages. The Queen appointed Samantha Cohen to explain the monarch’s required political neutrality. A senior official also met Meghan regularly to warn her she was marrying into an institution and could not act only on personal terms. Harry later wrote that Meghan ‘wasn’t given one minute of training,’ a claim at odds with the extensive briefings recorded by staff."
+        },
+        {
+          "paragraph_index": 6,
+          "text": "Palace advisers concluded Meghan saw herself as central and would resist being constrained by tradition. She treated the royals more like super-celebrities than a constitutional institution, showed little interest in the monarchy’s historical responsibilities, and made decisions without always consulting senior figures. The Queen and her advisers were displeased by this independence."
+        },
+        {
+          "paragraph_index": 7,
+          "text": "A telling episode came at the College of Arms, where Meghan asked for a startling image on her coat of arms—a songbird with its tongue cut out—before agreeing to a nightingale without that detail. Her wedding on 19 May 2018 was highly theatrical: she rode through Windsor with skill and poise, won broad public attention, and became a global celebrity. The day cost about £32 million and revealed tensions in the family, including visible reactions from senior royals."
+        },
+        {
+          "paragraph_index": 8,
+          "text": "After the wedding, the couple’s guest list and social choices—Hollywood names invited while some of Harry’s longtime friends were excluded—highlighted cultural frictions. Meghan grew frustrated at the palace’s restrained praise for her duties, and officials’ early enthusiasm faded. Relations with William and Kate were particularly strained as royal household expectations and Meghan’s insistence on autonomy clashed."
+        }
+      ]
+    }
+  ]
+}
